@@ -296,6 +296,18 @@ button, select {
     }
   }
 
+  .filter-label-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .reset {
+    font-size: .75em;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
   .section-header {
     display: flex;
     align-items: center;
@@ -371,16 +383,7 @@ button, select {
 
   
   .filter-range-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     min-width: 7rem;
-
-    .reset {
-      font-size: .75em;
-      font-weight: bold;
-      cursor: pointer;
-    }
   }
 
   .filter-range-container {

@@ -63,13 +63,15 @@ export function beginNewFilter() {
     qulaifiedMoves = undefined
 }
 
-const move = (T, key: keyof Move, def: any = undefined) => {
+type StringAuto<T> = T | (string & Record<never, never>)
+
+const move = (T, key: StringAuto<keyof Move>, def: any = undefined) => {
     // console.log({moveMethodMap})
     moveMethodMap[key] = (id, v) => v(otherData.moves?.[id]?.[key])
     return T(key, def, moveMethodFunc)
 }
 
-const evol = (T, key: keyof Evolution | string, def: any = undefined, customPred: any = undefined) => T(key, def, 
+const evol = (T, key: StringAuto<keyof Evolution>, def: any = undefined, customPred: any = undefined) => T(key, def, 
     customPred === undefined ? (a, id, v) => {
         const usingPre = filterData.Evolutionuse_pre_evolution?.value === 1
         // const resolver = i => v(otherData.evolutions?.[i]?.[key])
@@ -80,10 +82,10 @@ const evol = (T, key: keyof Evolution | string, def: any = undefined, customPred
             : resolver(id)
     }: customPred
 )
-const spec = (T, key: keyof Species, def: any = undefined) => T(key, def,
+const spec = (T, key: StringAuto<keyof Species>, def: any = undefined) => T(key, def,
     (a, id, v) => v(otherData.species?.[id]?.[key])
 )
-const poke = (T, key: keyof PkPokemon, def: any = undefined) => T(key, def, 
+const poke = (T, key: StringAuto<keyof PkPokemon>, def: any = undefined) => T(key, def, 
     (id, s, v) => v(pkData[id]?.pokemon?.[key])
 )
 
@@ -146,6 +148,9 @@ export function updateFilterData() {
             otherData.items && evol(Options, 'trigger_item_id', Object.values(otherData.items ?? []).filter(item => [10, 12].includes(item.category_id)).map(item => ({label: item.identifier, value: item.id}))),
             evol(Tag, 'holding_an_item', 0, (p, s, v) => otherData.evolutions?.[s]?.some(evo => evo.held_item_id && evo.held_item_id)),
             
+            evol(Range, 'minimum_happiness', [0, 255]),
+            evol(Options, 'time_of_day', []),
+
             // Branching evolutions needs to disclude single evolutions but with different forms
             // Try to fix evolution tree to also show different forms for root evolution, 
             //     by checking if current node is root and displaying flex list instead (hacky)
@@ -182,7 +187,7 @@ export function updateFilterData() {
 function between(x, min, max) {
     return typeof x === 'number' && x >= min && x <= max;
 }
-    
+
 function types() {
     return Object.entries(otherData.types ?? {})
     .filter(([key, row]) => key !== 'headers')
@@ -204,8 +209,16 @@ function stats() {
     )
 }
 
+
+function ResetFilter (props: {self, copy: () => any}) {
+    return props.self.hasChanged?.() && <div className="reset" onClick={() => {
+        props.self.value = props.copy()
+        stateUpdater()
+    }}>↺</div>
+}
+
 function Options(key, value: {label, value}[] = [], predicate, component = a => a, prefix = '') {
-    const optionsCopy = [{label: '---', value: null}, ...value]
+    const optionsCopy = [{label: '---', any: 'Any', none: 'None', value: null}, ...value]
     const self: FilterData = {
         value: optionsCopy[0],
         default: optionsCopy,
@@ -215,7 +228,10 @@ function Options(key, value: {label, value}[] = [], predicate, component = a => 
     self.predicate = (pk, sp) => predicate(pk, sp, self.calculator)
     self.component = () => {
         return (<div className="hflex">
-            <div>{key}</div>
+            <div className="filter-label-header">
+                <ResetFilter self={self} copy={() => optionsCopy[0]}/>
+                {key}
+            </div>
             <ReactSelect
                 value={self.value}
                 options={self.default}
@@ -244,12 +260,18 @@ function Range (key, value = [0, 100], predicate: (pokeId, speciesId, validator)
 
         return (
             <div key={key} className={'filter-range-component ' + (isSmall ? 'mobile': 'desktop')}>
-                <div className={"filter-range-header " + (self.hasChanged() ? 'enabled': '')}>
-                    {self.hasChanged() && <div className="reset" onClick={() => {
+                <div className={"filter-label-header filter-range-header " + (self.hasChanged() ? 'enabled': '')}>
+                    {/* {self.hasChanged() && <div className="reset" onClick={() => {
                         self.value[0] = self.default[0];
                         self.value[1] = self.default[1];
                         stateUpdater()
-                    }}>↺</div>}
+                    }}>↺</div>} */}
+
+                    <ResetFilter 
+                        self={self} 
+                        copy={() => [...self.default]}
+                    />
+
                     <div>
                         {component(key)}
                     </div>
@@ -312,7 +334,10 @@ function Search (key, value = "", predicate: (pokeId, speciesId, validator) => a
     self.component = () => {
         return (
             <div>
-                <div>{key}</div>
+                <div className="filter-label-header">
+                    <ResetFilter self={self} copy={() => ''}/>
+                    {key}
+                </div>
                 <input
                     type='search'
                     onChange={event => {
@@ -353,7 +378,10 @@ function Tag (key, value = 0, predicate: (pokeId, speciesId, validator) => any, 
                 stateUpdater()
             }}>
                 <TriMark value={ self.value }/>
-                <div className="label">{ component(key) }</div>
+                <div className="filter-label-header label">
+                    {/* <ResetFilter self={self} copy={() => -1}/> */}
+                    {component(key)}
+                </div>
             </div>
         )
     }
