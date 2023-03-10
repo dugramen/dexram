@@ -48,21 +48,34 @@ export function parseProse(text: string, data) {
         } 
         return accum + ' ' + val
     }, '')
-    return ntext?.replaceAll('[', '[ ').split(/(?:,|\[|\]|{|})+/).reduce((accum, val, index) => {
-        const remainder = index % 3
-        if (remainder === 0) {
-            return [...accum, val]
+
+    const [s, ...rest] = ntext?.split('[') ?? []
+    return s + rest.reduce((acc, sec) => {
+        const [split, end] = sec.split('}')
+
+        const inSquareBracket = split.slice(0, split.indexOf(']'))
+        if (inSquareBracket !== '') {
+            return acc + inSquareBracket + end
+        } else {
+            return acc + split.slice(split.indexOf(':') + 1, split.length) + end
         }
-        if (remainder === 1) {
-            if (val === ' ') {
-                return [...accum, 'TYPE']
-            }
-            return [...accum, val]
-        }
-        else {
-            return accum
-        }
-    }, [] as any[])
+    }, '')
+
+    // return ntext?.replaceAll('[', '[ ').split(/(?:,|\[|\]|{|})+/).reduce((accum, val, index) => {
+    //     const remainder = index % 3
+    //     if (remainder === 0) {
+    //         return [...accum, val]
+    //     }
+    //     if (remainder === 1) {
+    //         if (val === ' ') {
+    //             return [...accum, 'TYPE']
+    //         }
+    //         return [...accum, val]
+    //     }
+    //     else {
+    //         return accum
+    //     }
+    // }, [] as any[])
 } 
 
 export const blankEntryDasher = (text) => text === "" ? "--" : text

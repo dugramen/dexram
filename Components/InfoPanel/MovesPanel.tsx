@@ -2,10 +2,15 @@ import React from "react";
 import { PkMove, pkData, otherData } from "../DataEnums";
 import { capitalize, parseProse, blankEntryDasher } from "../Utils";
 import { Type } from "../Type";
+import { WindowWidth } from "../../pages/_app";
+import { getFilteredMoves, beginNewFilter, filterChangeConfirmed } from "../Filter/FilterClasses";
 
 export default function MovesPanel({id}) {
+    const windowWidth = React.useContext(WindowWidth)
+    // const isMobile = windowWidth < 550
+    const isMobile = true
     const [availableMoveTabs, setAvailableMoveTabs] = React.useState({
-        'Identifier': false,
+        'All': true,
         'Level-Up': false,
         'Egg': false,
         'Tutor': false,
@@ -19,49 +24,103 @@ export default function MovesPanel({id}) {
         'Zygarde-Cube': false,
     })
     const [moveMethodTab, setMoveMethodTab] = React.useState(1)
+    const [onlyFiltered, setOnlyFiltered] = React.useState(false)
+    const [availableMoves, setAvailableMoves] = React.useState(getFilteredMoves(id) ?? {})
+    const [manualUpdate, setManualUpdate] = React.useState(0)
+    const update = () => setManualUpdate(old => {console.log('manual update -- ', old); return old + 1})
+
+    React.useEffect(() => {
+        filterChangeConfirmed.connect(update)
+        return () => {
+            filterChangeConfirmed.disconnect(update)
+        }
+    }, [])
+
     React.useEffect(() => {
         // setSpriteUrl(generateSpriteUrl(id))
         setAvailableMoveTabs(old => {
             Object.getOwnPropertyNames(old).forEach(n => {
                 old[n] = false
             })
+            old.All = true
             return old
         })
     }, [id])
 
     React.useEffect(() => { 
-        pkData[id]?.moves?.forEach((row: PkMove) => {
+        pkData[id]?.moves
+        ?.forEach((row: PkMove) => {
             setAvailableMoveTabs(old => ({
                 ...old,
-
+                
                 [Object.getOwnPropertyNames(old)[row.pokemon_move_method_id]]: true,
             }))
         })
     }, [pkData[id]?.moves])
+    
+    React.useEffect(() => {
+        console.log('recieved manual update')
+        beginNewFilter()
+        setAvailableMoves(getFilteredMoves(id) ?? {})
+    }, [id, manualUpdate, onlyFiltered])
 
     return (
         <div className="MovesPanel">
-            <div className="tab-container">
-                {Object.getOwnPropertyNames(availableMoveTabs).map((tab, index) => (
-                    availableMoveTabs[tab] && 
-                    <button 
-                        onClick={() => setMoveMethodTab(index)} 
-                        key={tab}
-                        className={`tab ${index === moveMethodTab ? 'current' : ''}`}
-                    >
-                        {tab}
-                    </button>
-                ))}
+            <div className="moves-top-bar">
+                <input
+                    type='checkbox'
+                    checked={onlyFiltered}
+                    onChange={() => setOnlyFiltered(old => !old)}
+                />
+
+                <button className="filter-button">Filters</button>
+
+                <div className="tab-container">
+                    {Object.getOwnPropertyNames(availableMoveTabs).map((tab, index) => (
+                        availableMoveTabs[tab] && 
+                        <button 
+                            onClick={() => setMoveMethodTab(index)} 
+                            key={tab}
+                            className={`tab ${index === moveMethodTab ? 'current' : ''}`}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            <div className="moves-grid">
+            <div className={"moves-grid " + (isMobile ? 'mobile': 'desktop')}>
                 {
                     pkData[id]?.moves
-                    ?.sort((a, b) => a.level - b.level)
+                    ?.sort((a, b) => (a.pokemon_move_method_id === 1 ? a.level: 100 + a.pokemon_move_method_id) 
+                                   - (b.pokemon_move_method_id === 1 ? b.level: 100 + b.pokemon_move_method_id))
                     .map((row, index) => {
-                        let result = row.pokemon_move_method_id === moveMethodTab && 
+                        let result = ([row.pokemon_move_method_id, 0].includes(moveMethodTab)) &&
+                        (!onlyFiltered || Object.hasOwn(availableMoves, row.move_id)) &&  
                         <React.Fragment key={`${id} ${Object.entries(row).toString()}`}>
-                            <div className="level">{moveMethodTab === 4 ? row.move_id : row.level}</div>
+                            <div className="level">{
+                                [
+                                    '',
+                                    // <div style={{
+                                    //     display: 'flex',
+                                    //     minWidth: '0',
+                                    // }}>
+                                    //     <div style={{marginRight: 'auto'}}>Lv</div>
+                                    //     <div>{row.level}</div>
+                                    // </div>,
+                                    `Lv ${row.level}`,
+                                    'Egg',
+                                    'Tutr',
+                                    'TM',
+                                    'Stdm',
+                                    'Clsm',
+                                    'LtBl',
+                                    'XD-S',
+                                    'XD-P',
+                                    'Form',
+                                    'Z'
+                                ][row.pokemon_move_method_id]
+                            }</div>
 
                             <div className="identifier">
                                 {capitalize(otherData.moves?.[row.move_id]?.identifier)}
@@ -77,7 +136,7 @@ export default function MovesPanel({id}) {
 
                             <div className={`description ${otherData.moves?.[row.move_id].effect_id === 1 ? 'none': ''}`}>
                                 {otherData.moves?.[row.move_id].effect_id === 1
-                                ? '-----' 
+                                ? '' 
                                 : parseProse(otherData.move_effect_prose?.[otherData.moves?.[row.move_id].effect_id]?.short_effect, otherData.moves?.[row.move_id])}
                             </div>
                         </React.Fragment>

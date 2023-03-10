@@ -16,7 +16,7 @@ const item_evo = (a) => <div className="evo-horizontal">
 const evo_map: Partial<Evolution> = {
     evolution_trigger_id: a => ![1, 3].includes(a) && capitalize(otherData.evolution_triggers?.[a]?.identifier),
     minimum_level: a => `Lv.${a}`,
-    gender_id: a => `${{1: 'Female', 2: 'Male', 3: 'Genderless'}[a]}`,
+    gender_id: a => `${{1: '♀ Female', 2: '♂ Male', 3: 'Genderless'}[a]}`,
     minimum_happiness: a => `❤️ ${a}`,
     minimum_beauty: a => `${a} Beauty`,
     minimum_affection: a => `${a} Affection`,

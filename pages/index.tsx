@@ -8,7 +8,7 @@ import PokemonInfoPanel from "../Components/InfoPanel/PokemonInfoPanel";
 import PokedexListItem from "../Components/PokedexListItem";
 import { pkData, otherData, loadOtherData, loadPokeData } from "../Components/DataEnums";
 import FilterPanelNew from "../Components/Filter/FilterPanelnEW";
-import { filterData, updateFilterData } from "../Components/Filter/FilterClasses";
+import { filterData, updateFilterData, beginNewFilter } from "../Components/Filter/FilterClasses";
 import { WindowWidth } from "./_app";
 
 export default function Home(props) {
@@ -32,7 +32,8 @@ export default function Home(props) {
   }
 
   const [infoShown, setInfoShown] = React.useState(false)
-  const isMobile = React.useContext(WindowWidth) < 780
+  const windowWidth = React.useContext(WindowWidth)
+  const isMobile = windowWidth < 780
 
   const statSort = (a, b, statId = 0) => (
     pkData[a]?.stats?.[statId]?.base_stat - pkData[b]?.stats?.[statId]?.base_stat
@@ -49,6 +50,18 @@ export default function Home(props) {
     speed: (a, b) => statSort(a, b, 5),
     height: (a, b) => pkData[a]?.pokemon?.height - pkData[b]?.pokemon?.height,
     weight: (a, b) => pkData[a]?.pokemon?.weight - pkData[b]?.pokemon?.weight,
+    stat_total: (a, b) => {
+      const comp = i => pkData[i]?.stats?.reduce((acc, val) => acc + val.base_stat, 0) ?? 0
+      return comp(a) - comp(b)
+    },
+    stat_lowest: (a, b) => {
+      const comp = i => pkData[i]?.stats?.reduce((acc, val) => Math.min(acc, val.base_stat), 255) ?? 0
+      return comp(a) - comp(b)
+    },
+    stat_highest: (a, b) => {
+      const comp = i => pkData[i]?.stats?.reduce((acc, val) => Math.max(acc, val.base_stat), 0) ?? 0
+      return comp(a) - comp(b)
+    },
     base_experience: (a, b) => pkData[a]?.pokemon?.base_experience - pkData[b]?.pokemon?.base_experience,
     type_id: (a, b) => (
       (pkData[a]?.types?.[0]?.type_id * 1_000 + (pkData[a]?.types?.[1]?.type_id ?? 0))
@@ -109,8 +122,12 @@ export default function Home(props) {
           a![prevolveId].evolves_into.push(row)
         }))
         update()
-      })
+      }) 
     })
+    return () => {
+      for (let member in pkData) delete pkData[member];
+      for (let member in otherData) delete otherData[member];
+    }
   }, [])
 
   React.useEffect(() => {
@@ -118,13 +135,15 @@ export default function Home(props) {
     const minimumFilters = Object.entries(filterData)
       .filter(entry => {console.log(entry[1].hasChanged()); return entry[1].hasChanged?.()})
       .map(entry => entry[1].predicate)
-    console.log({minimumFilters})
+    // console.log({minimumFilters})
+    beginNewFilter()
+    const lowered = search.toLowerCase()
     Object.keys(pkData ?? {}).forEach(pokeID => {
       const data = pkData[pokeID]
       const pokeName = data?.pokemon?.identifier ?? ''
       if (
         pokeName !== 'identifier'
-        && pokeName.includes(search)
+        && pokeName.includes(lowered)
         && minimumFilters.every(predicate => predicate?.(pokeID, pkData[pokeID]?.pokemon?.species_id) ?? false)
       ) {
         filteredPokes.current.push(pokeID) 
@@ -147,7 +166,7 @@ export default function Home(props) {
       <div className="topbar">
 
         <input 
-          type='text'
+          type='search'
           className="search"
           placeholder="Search"
           onChange={(event) => setSearch(event.target.value)}
@@ -159,15 +178,6 @@ export default function Home(props) {
           <div className="basic-text">{`${filteredPokes.current.length} results`}</div>
 
           <FilterPanelNew update={update}/> 
-
-          <div>Type: </div>
-          <select onChange={event => setTypeFilter(Number(event.target.value))}>
-            {['---', ...Object.keys(typeMap)]?.map((key, index) => (
-              <option value={index} key={key}>
-                {key}
-              </option>
-            ))}
-          </select>
 
           <div>Sort: </div>
           <button onClick={() => setSortAscending(old => -old)}>
@@ -201,20 +211,25 @@ export default function Home(props) {
           </AutoSizer>
         </div>
         
-        <div className={"InfoPanel-container " + (infoShown ? 'shown' : '')}>
+        <div className={"InfoPanel-container " + (infoShown ? 'shown' : '') + (windowWidth < 1000 ? ' mobile' : ' desktop')}>
           <PokemonInfoPanel
             id={selectedPoke}
             setSelectedPoke={setSelectedPoke}
           />
-          <button style={{
-            position: 'absolute',
-            top: 4,
-            left: 4,
-            background: 'none',
-            outline: 'none',
-            border: 'none',
-            color: 'gray'
-          }} onClick={() => setInfoShown(false)}>Hide X</button>
+          {
+            infoShown && isMobile &&
+            <button style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              background: 'none',
+              outline: 'none',
+              border: 'none',
+              color: 'gray',
+              padding: '30px',
+              fontSize: '1.25rem'
+            }} onClick={() => setInfoShown(false)}> X </button>
+          }
         </div>
       </div>
     </div>

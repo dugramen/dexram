@@ -7,11 +7,70 @@ import { WindowWidth } from "../../pages/_app";
 import React from "react";
 
 
-const move = (T, key: keyof Move, def: any = undefined) => T(key, def, 
-    (p, s, v) => pkData[p]?.moves?.some(move => v(otherData.moves?.[move.move_id]?.[key]))
-)
-const evol = (T, key: keyof Evolution, def: any = undefined) => T(key, def,
-    (a, id, v) => {
+export interface FilterData { value, default, predicate?, component?, hasChanged?, calculator? : (a: any) => any}
+export const filterData: {[a: string]: FilterData} = {}
+
+class InnerEvent {
+    connectedFunctions: Set<() => any>;
+    emit: () => any;
+    constructor() {
+        this.connectedFunctions = new Set()
+        this.emit = (() => this.connectedFunctions.forEach(f => f())).bind(this)
+    }
+    connect(func: () => any) {
+        this.connectedFunctions.add(func)
+    } 
+    disconnect(func: () => any) {
+        this.connectedFunctions.delete(func)
+    }
+}
+
+export const filterChanged = new InnerEvent()
+export const filterChangeConfirmed = new InnerEvent()
+const stateUpdater = filterChanged.emit
+
+
+
+
+let qulaifiedMoves: any = undefined
+const moveMethodMap = {}
+export const getFilteredMoves = (p) => {
+    qulaifiedMoves = qulaifiedMoves ?? (() => {
+        const hasChangedMethods = Object.entries(filterData).filter(entry => entry[0].startsWith('Moves') && entry[1].hasChanged())
+        const filteredMoveResult = Object.values(otherData.moves ?? {})
+        .filter(
+            row => hasChangedMethods.every(
+                (entry: any) => moveMethodMap[entry[0].replace('Moves', '')](row.id, entry[1].calculator)
+                // entry[1].calculator(otherData.moves?.[row.id])
+            )
+        )
+        .reduce((acc, val) => ({
+            ...acc,
+            [val.id]: val
+        }), {})
+        console.log('oofers', filteredMoveResult, hasChangedMethods)
+        return filteredMoveResult
+    })()
+
+    return qulaifiedMoves
+}
+const moveMethodFunc = (p, s, v) => {
+    getFilteredMoves(p)
+    return (pkData[p]?.moves?.filter(m => qulaifiedMoves[m.move_id] !== undefined)?.length ?? 0) > 0
+}
+
+export function beginNewFilter() {
+    qulaifiedMoves = undefined
+}
+
+const move = (T, key: keyof Move, def: any = undefined) => {
+    // console.log({moveMethodMap})
+    moveMethodMap[key] = (id, v) => v(otherData.moves?.[id]?.[key])
+    return T(key, def, moveMethodFunc)
+}
+
+const evol = (T, key: keyof Evolution | string, def: any = undefined, customPred: any = undefined) => T(key, def, 
+    customPred === undefined ? (a, id, v) => {
         const usingPre = filterData.Evolutionuse_pre_evolution?.value === 1
         // const resolver = i => v(otherData.evolutions?.[i]?.[key])
         const resolver = i => otherData.evolutions?.[i]?.some(val => v(val[key]))
@@ -19,7 +78,7 @@ const evol = (T, key: keyof Evolution, def: any = undefined) => T(key, def,
         return usingPre 
             ? otherData.species?.[id]?.evolves_into?.some(row => resolver(row.evolved_species_id))
             : resolver(id)
-    }
+    }: customPred
 )
 const spec = (T, key: keyof Species, def: any = undefined) => T(key, def,
     (a, id, v) => v(otherData.species?.[id]?.[key])
@@ -27,13 +86,6 @@ const spec = (T, key: keyof Species, def: any = undefined) => T(key, def,
 const poke = (T, key: keyof PkPokemon, def: any = undefined) => T(key, def, 
     (id, s, v) => v(pkData[id]?.pokemon?.[key])
 )
-
-
-export interface FilterData { value, default, predicate?, component?, hasChanged? }
-export const filterData: {[a: string]: FilterData} = {}
-
-let stateUpdater = () => {}
-export const setStateUpdater = (updater) => stateUpdater = updater
 
 const section = (prefix, ...args) => {
     // console.log(args.map(a => Object.entries(a)))
@@ -77,16 +129,23 @@ export function updateFilterData() {
             'Stats',
             ...stats(),
             Range('stat_total', [0, 1_500], (id, p, v) => v(pkData[id]?.stats?.reduce((acc, row) => acc + row.base_stat, 0))),
+            Range('highest_stat', [0, 255], (p, s, v) => v(pkData[p]?.stats?.slice(0, 6).reduce((acc, row) => Math.max(row.base_stat, acc), 0))),
+            Range('lowest_stat', [0, 255], (p, s, v) => v(pkData[p]?.stats?.slice(0, 6).reduce((acc, row) => Math.min(row.base_stat, acc), 255))),
         ),
 
         ...section(
             'Evolution',
             Tag('use_pre_evolution', 0, id => true),
+            Tag('branching_evolutions', 0, (p, s, v) => v((otherData.species?.[s]?.evolves_into?.length ?? 0) > 1)),
             evol(Range, 'minimum_level', [0, 100]),
-            evol(Tag, 'trigger_item_id'),
             evol(Tag, 'needs_overworld_rain'),
             evol(Tag, 'turn_upside_down'),
-            Tag('branching_evolutions', 0, (p, s, v) => v((otherData.species?.[s]?.evolves_into?.length ?? 0) > 1))
+            // evol(Tag, 'trigger_item_id'),
+            otherData.items && evol(Options, 'held_item_id', Object.values(otherData.items ?? []).filter(item => [10, 12].includes(item.category_id)).map(item => ({label: item.identifier, value: item.id}))),
+            evol(Tag, 'using_an_item', 0, (p, s, v) => otherData.evolutions?.[s]?.some(evo => evo.trigger_item_id && evo.trigger_item_id)),
+            otherData.items && evol(Options, 'trigger_item_id', Object.values(otherData.items ?? []).filter(item => [10, 12].includes(item.category_id)).map(item => ({label: item.identifier, value: item.id}))),
+            evol(Tag, 'holding_an_item', 0, (p, s, v) => otherData.evolutions?.[s]?.some(evo => evo.held_item_id && evo.held_item_id)),
+            
             // Branching evolutions needs to disclude single evolutions but with different forms
             // Try to fix evolution tree to also show different forms for root evolution, 
             //     by checking if current node is root and displaying flex list instead (hacky)
@@ -104,12 +163,15 @@ export function updateFilterData() {
             move(Range, 'pp', [0, 100]),
             move(Range, 'effect_chance', [0, 100]),
             move(Range, 'priority', [0, 6]),
-            // move(Options, 'type_id', )
-            otherData.types && Options(
-                'Type', 
-                Object.entries(otherData.types ?? {}).map(e => ({label: e[1].identifier, value: e[1].id}) ), 
-                (pk, sp, v) => pkData[pk]?.moves?.some(row => v(otherData.moves?.[row.move_id]?.type_id))
+            // move(Options, 'type_id', ),
+            otherData.types && move(Options, 'type_id',
+                Object.entries(otherData.types ?? {}).map(e => ({label: e[1].identifier, value: e[1].id})),
             ),
+            // otherData.types && Options(
+            //     'Type', 
+            //     Object.entries(otherData.types ?? {}).map(e => ({label: e[1].identifier, value: e[1].id}) ), 
+            //     (pk, sp, v) => pkData[pk]?.moves?.some(row => v(otherData.moves?.[row.move_id]?.type_id))
+            // ),
         )
     })
     .filter((entry: any) => !filterData.hasOwnProperty(entry[0]))
@@ -118,7 +180,7 @@ export function updateFilterData() {
 }
 
 function between(x, min, max) {
-    return x >= min && x <= max;
+    return typeof x === 'number' && x >= min && x <= max;
 }
     
 function types() {
@@ -149,7 +211,8 @@ function Options(key, value: {label, value}[] = [], predicate, component = a => 
         default: optionsCopy,
     }
     self.hasChanged = () => self.value.value !== null
-    self.predicate = (pk, sp) => predicate(pk, sp, a => a === self.value?.value)
+    self.calculator = a => a === self.value?.value
+    self.predicate = (pk, sp) => predicate(pk, sp, self.calculator)
     self.component = () => {
         return (<div className="hflex">
             <div>{key}</div>
@@ -174,9 +237,10 @@ function Range (key, value = [0, 100], predicate: (pokeId, speciesId, validator)
         default: [...value],
     }
     self.hasChanged = () => self.value[0] !== self.default[0] || self.value[1] !== self.default[1]
-    self.predicate = (pokeId, speciesId) => predicate(pokeId, speciesId, a => between(a, self.value[0], self.value[1]))
-    self.component = () => {
-        const isSmall = React.useContext(WindowWidth) < 600
+    self.calculator = a => between(a, self.value[0], self.value[1])
+    self.predicate = (pokeId, speciesId) => predicate(pokeId, speciesId, self.calculator)
+    self.component = (props) => {
+        const isSmall = (props.windowWidth ?? 0) < 600
 
         return (
             <div key={key} className={'filter-range-component ' + (isSmall ? 'mobile': 'desktop')}>
@@ -240,8 +304,11 @@ function Search (key, value = "", predicate: (pokeId, speciesId, validator) => a
         value: value,
         default: value
     }
+    self.calculator = (a: string) => {
+        return typeof a === 'string' && a.toLowerCase().replaceAll('-', ' ').includes(self.value.toLowerCase())
+    }
     self.hasChanged = () => self.value !== self.default
-    self.predicate = (p, s) => predicate(p, s, (a: string) => a.toLowerCase().replaceAll('-', ' ').includes(self.value.toLowerCase())),
+    self.predicate = (p, s) => predicate(p, s, self.calculator)
     self.component = () => {
         return (
             <div>
@@ -266,15 +333,14 @@ function Tag (key, value = 0, predicate: (pokeId, speciesId, validator) => any, 
         default: value,
     }
     self.hasChanged = () => self.value !== self.default
-    self.predicate = (pokeId, speciesId) => (
-        predicate(pokeId, speciesId, val => {
-            return self.value === 1 
-                ? val
-                : self.value === -1
-                    ? !val
-                    : true
-        })
-    )
+    self.calculator = val => {
+        return self.value === 1 
+            ? val
+            : self.value === -1
+                ? !val
+                : true
+    }
+    self.predicate = (p, s) => (predicate(p, s, self.calculator))
     self.component = () => {
         return (
             <div key={key} className="tag-container" onClick={() => {

@@ -7,16 +7,16 @@ function Section(props: {label, children?}) {
     return <div className='section'>
         <h4 className='header'>{props.label}</h4>
         <div className='grid'>
-            {props.children}
+            {props.children ?? ''}
         </div>
     </div>
 }
 
 function Entry(props: {label, value?}) {
-    return <>
-        <div className='left'>{props.label ?? null}</div>
-        <div className='right'>{props.value ?? null}</div>
-    </>
+    return <React.Fragment>
+        <div className='left'>{props.label || ''}</div>
+        <div className='right'>{props.value || ''}</div>
+    </React.Fragment>
 }
 
 interface Props {
@@ -45,11 +45,11 @@ export default function AboutPanel({id}: Props) {
                         <Entry label='Species' value={capitalize(otherData.species?.[speciesId]?.identifier)}/>
                         <Entry label='Type' value={
                             <>{pkData[id]?.types
-                                ?.map(type => <Type key={type.type_id} type={type.type_id}/>)
+                                ?.map((type, i) => <Type key={type.type_id ?? `${i}`} type={type.type_id}/>)
                             }</>
                         }/>
-                        <Entry label='Height' value={pkData[id]?.pokemon?.height}/>
-                        <Entry label='Weight' value={pkData[id]?.pokemon?.weight}/>
+                        <Entry label='Height' value={pkData[id]?.pokemon?.height ?? 0}/>
+                        <Entry label='Weight' value={pkData[id]?.pokemon?.weight ?? 0}/>
                     </Section>
 
                     <Section label='Breeding'>
@@ -94,9 +94,9 @@ export default function AboutPanel({id}: Props) {
                             </div>
                         } value={
                             <div className='hlisted-items'>{
-                                types?.map?.(t => <Type type={Number(t)}/>)
+                                types?.map?.(t => <Type key={t} type={Number(t)}/>)
                             }</div>
-                        }/>)
+                        }/>) ?? ''
                         }
                     </Section>
 
@@ -128,7 +128,7 @@ export default function AboutPanel({id}: Props) {
                             label={capitalize(otherData.abilities?.[row.ability_id]?.identifier)}
                             value={parseProse(otherData.ability_prose?.[row.ability_id]?.short_effect, otherData.abilities?.[row.ability_id])}
                         />
-                    ))}
+                    )) ?? ''}
                 </Section>
             </div>
         </div>
