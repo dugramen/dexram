@@ -149,7 +149,7 @@ export function updateFilterData() {
             evol(Tag, 'holding_an_item', 0, (p, s, v) => otherData.evolutions?.[s]?.some(evo => evo.held_item_id && evo.held_item_id)),
             
             evol(Range, 'minimum_happiness', [0, 255]),
-            evol(Options, 'time_of_day', []),
+            evol(Options, 'time_of_day', ['day', 'night', 'dusk', 'full-moon'].map(a => ({label: a, value: a}))),
 
             // Branching evolutions needs to disclude single evolutions but with different forms
             // Try to fix evolution tree to also show different forms for root evolution, 
@@ -218,13 +218,19 @@ function ResetFilter (props: {self, copy: () => any}) {
 }
 
 function Options(key, value: {label, value}[] = [], predicate, component = a => a, prefix = '') {
-    const optionsCopy = [{label: '---', any: 'Any', none: 'None', value: null}, ...value]
+    const optionsCopy: {label, value}[] = [
+        {label: '---', value: null},
+        {label: 'Any', value: -1},
+        ...value
+    ]
     const self: FilterData = {
         value: optionsCopy[0],
         default: optionsCopy,
     }
     self.hasChanged = () => self.value.value !== null
-    self.calculator = a => a === self.value?.value
+    self.calculator = a => self.value.label === 'Any'
+        ? a != false
+        : a === self.value?.value
     self.predicate = (pk, sp) => predicate(pk, sp, self.calculator)
     self.component = () => {
         return (<div className="hflex">
