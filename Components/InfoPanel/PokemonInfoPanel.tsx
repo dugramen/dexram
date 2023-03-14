@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import { capitalize } from "../Utils";
+import { capitalize, Scroller } from "../Utils";
 import { PkMove, OtherData, PkData, ObjectList, pkData, otherData } from "../DataEnums";
 import { Type } from "../Type";
 import Sprite from "../Sprite";
@@ -11,41 +11,6 @@ import AboutPanel from "./AboutPanel";
 interface Props {
     id: number,
     setSelectedPoke,
-}
-
-function Scroller(props) {
-    const [scrollAtEnds, setScrollAtEnds] = React.useState(-2)
-    const scroller = React.useRef<any>(null)
-
-    function handleScrollCheck() {
-        console.log('scroll checking')
-        scroller.current && setScrollAtEnds(
-            scroller.current?.clientWidth >= scroller.current?.scrollWidth
-            ? -2
-            : scroller.current?.scrollLeft <= 0
-                ? -1
-                : scroller.current?.scrollLeft + scroller.current?.clientWidth >= scroller.current?.scrollWidth
-                    ? 1
-                    : 0
-        )
-    }
-
-    React.useEffect(() => {
-        handleScrollCheck()
-    }, [scroller.current, scroller.current?.clientWidth, scroller.current?.scrollWidth, scroller.current?.scrollLeft])
-
-    return <div className="indicated-scroller-container">
-        <div 
-            ref={scroller}
-            onScroll={handleScrollCheck}
-            // onResize={handleScrollCheck}
-            className={"indicated-scroller " + (props.className ?? '')}
-            >
-            {props.children}
-        </div>
-        {scrollAtEnds !== -2 && scrollAtEnds !== -1 && <div className="arrow left">{'🢔'}</div>}
-        {scrollAtEnds !== -2 && scrollAtEnds !== 1 && <div className="arrow right">{'🢖'}</div>}
-    </div>
 }
 
 export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
@@ -61,7 +26,7 @@ export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
                 height={144}
             />
 
-            <Scroller className="Tab-container">
+            <Scroller innerClassName="Tab-container">
 
                 {tabs.map((tab, index) => (
                     <div 

@@ -97,7 +97,7 @@ export interface Types { id, identifier, generation_id, damage_class_id }
 export interface TypeEfficacy { damage_type_id, target_type_id, damage_factor }
 export interface OtherData { 
     moves?: OList<Move>, 
-    abilities?: Ability[], 
+    abilities?: OList<Ability>, 
     move_effect_prose?: OList<MoveEffectProse>,
     types?: OList<Types>,
     ability_prose?: OList<AbilityProse>,

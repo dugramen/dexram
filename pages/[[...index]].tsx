@@ -10,8 +10,11 @@ import { pkData, otherData, loadOtherData, loadPokeData } from "../Components/Da
 import FilterPanelNew from "../Components/Filter/FilterPanelnEW";
 import { filterData, updateFilterData, beginNewFilter } from "../Components/Filter/FilterClasses";
 import { WindowWidth } from "./_app";
+import { Router, useRouter } from "next/router";
 
 export default function Home(props) {
+  const router = useRouter()
+  // console.log('Home Props ', router)
   const {MultiRangeSlider} = props
   const [pokeDataLoaded, setPokeDataLoaded] = React.useState(-1)
   const filteredPokes = React.useRef<any[]>([])
@@ -24,14 +27,16 @@ export default function Home(props) {
 
   const [sortOption, setSortOption] = React.useState('default')
   const [sortAscending, setSortAscending] = React.useState(1)
-  const [selectedPoke, rawSetSelectedPoke] = React.useState(1)
+  // const [selectedPoke, rawSetSelectedPoke] = React.useState(1)
+  const selectedPoke = parseInt(router.query.selectedPoke as string) || 1
 
   const setSelectedPoke = (a) => {
-    rawSetSelectedPoke(a);
-    setInfoShown(true);
+    // rawSetSelectedPoke(a);
+    // setInfoShown(true);
+    router.push(`/?selectedPoke=${a}`, undefined, {shallow: true})
   }
 
-  const [infoShown, setInfoShown] = React.useState(false)
+  // const [infoShown, setInfoShown] = React.useState(false)
   const windowWidth = React.useContext(WindowWidth)
   const isMobile = windowWidth < 780
 
@@ -211,13 +216,13 @@ export default function Home(props) {
           </AutoSizer>
         </div>
         
-        <div className={"InfoPanel-container " + (infoShown ? 'shown' : '') + (windowWidth < 1000 ? ' mobile' : ' desktop')}>
+        <div className={"InfoPanel-container " + (selectedPoke > 0 ? 'shown' : '') + (windowWidth < 1000 ? ' mobile' : ' desktop')}>
           <PokemonInfoPanel
             id={selectedPoke}
             setSelectedPoke={setSelectedPoke}
           />
           {
-            infoShown && isMobile &&
+            selectedPoke > 0 && isMobile &&
             <button style={{
               position: 'absolute',
               top: 0,
@@ -228,7 +233,7 @@ export default function Home(props) {
               color: 'gray',
               padding: '30px',
               fontSize: '1.25rem'
-            }} onClick={() => setInfoShown(false)}> X </button>
+            }} onClick={() => setSelectedPoke(-1)}> X </button>
           }
         </div>
       </div>

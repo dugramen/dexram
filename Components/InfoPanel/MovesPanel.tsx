@@ -1,6 +1,6 @@
 import React from "react";
 import { PkMove, pkData, otherData } from "../DataEnums";
-import { capitalize, parseProse, blankEntryDasher } from "../Utils";
+import { capitalize, parseProse, blankEntryDasher, Scroller } from "../Utils";
 import { Type } from "../Type";
 import { WindowWidth } from "../../pages/_app";
 import { getFilteredMoves, beginNewFilter, filterChangeConfirmed } from "../Filter/FilterClasses";
@@ -66,7 +66,7 @@ export default function MovesPanel({id}) {
 
     return (
         <div className="MovesPanel">
-            <div className="moves-top-bar">
+            <Scroller className={"moves-top-bar"} innerClassName="inner">
                 <input
                     type='checkbox'
                     checked={onlyFiltered}
@@ -87,7 +87,10 @@ export default function MovesPanel({id}) {
                         </button>
                     ))}
                 </div>
-            </div>
+            </Scroller>
+            
+            {/* <div className="moves-top-bar">
+            </div> */}
 
             <div className={"moves-grid " + (isMobile ? 'mobile': 'desktop')}>
                 {
@@ -101,13 +104,6 @@ export default function MovesPanel({id}) {
                             <div className="level">{
                                 [
                                     '',
-                                    // <div style={{
-                                    //     display: 'flex',
-                                    //     minWidth: '0',
-                                    // }}>
-                                    //     <div style={{marginRight: 'auto'}}>Lv</div>
-                                    //     <div>{row.level}</div>
-                                    // </div>,
                                     `Lv ${row.level}`,
                                     'Egg',
                                     'Tutr',

@@ -119,6 +119,7 @@ export function updateFilterData() {
             spec(Range, 'gender_rate', [0, 8]),
             spec(Range, 'capture_rate', [0, 1_000]), 
             spec(Range, 'base_happiness', [0, 1_000]),
+            otherData.abilities && Options('Ability', Object.values(otherData.abilities ?? {}).map(row => ({label: row.identifier, value: row.id})), (p, s, v) => pkData[p]?.abilities?.some(row => v(row.ability_id))),
         ),
         ...section(
             'Types',
@@ -139,16 +140,18 @@ export function updateFilterData() {
             'Evolution',
             Tag('use_pre_evolution', 0, id => true),
             Tag('branching_evolutions', 0, (p, s, v) => v((otherData.species?.[s]?.evolves_into?.length ?? 0) > 1)),
-            evol(Range, 'minimum_level', [0, 100]),
             evol(Tag, 'needs_overworld_rain'),
             evol(Tag, 'turn_upside_down'),
+            evol(Range, 'minimum_level', [0, 100]),
+            evol(Range, 'minimum_happiness', [0, 255]),
+            evol(Range, 'minimum_beauty', [0, 255]),
+            evol(Range, 'minimum_affection', [0, 255]),
             // evol(Tag, 'trigger_item_id'),
             otherData.items && evol(Options, 'held_item_id', Object.values(otherData.items ?? []).filter(item => [10, 12].includes(item.category_id)).map(item => ({label: item.identifier, value: item.id}))),
-            evol(Tag, 'using_an_item', 0, (p, s, v) => otherData.evolutions?.[s]?.some(evo => evo.trigger_item_id && evo.trigger_item_id)),
+            // evol(Tag, 'using_an_item', 0, (p, s, v) => otherData.evolutions?.[s]?.some(evo => evo.trigger_item_id && evo.trigger_item_id)),
             otherData.items && evol(Options, 'trigger_item_id', Object.values(otherData.items ?? []).filter(item => [10, 12].includes(item.category_id)).map(item => ({label: item.identifier, value: item.id}))),
-            evol(Tag, 'holding_an_item', 0, (p, s, v) => otherData.evolutions?.[s]?.some(evo => evo.held_item_id && evo.held_item_id)),
+            // evol(Tag, 'holding_an_item', 0, (p, s, v) => otherData.evolutions?.[s]?.some(evo => evo.held_item_id && evo.held_item_id)),
             
-            evol(Range, 'minimum_happiness', [0, 255]),
             evol(Options, 'time_of_day', ['day', 'night', 'dusk', 'full-moon'].map(a => ({label: a, value: a}))),
 
             // Branching evolutions needs to disclude single evolutions but with different forms
@@ -218,6 +221,7 @@ function ResetFilter (props: {self, copy: () => any}) {
 }
 
 function Options(key, value: {label, value}[] = [], predicate, component = a => a, prefix = '') {
+    console.log('options of ', key, value)
     const optionsCopy: {label, value}[] = [
         {label: '---', value: null},
         {label: 'Any', value: -1},
