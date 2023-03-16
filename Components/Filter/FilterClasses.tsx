@@ -76,7 +76,7 @@ const evol = (T, key: StringAuto<keyof Evolution>, def: any = undefined, customP
         const usingPre = filterData.Evolutionuse_pre_evolution?.value === 1
         // const resolver = i => v(otherData.evolutions?.[i]?.[key])
         const resolver = i => otherData.evolutions?.[i]?.some(val => v(val[key]))
-        console.log(id, {resolved: otherData.species?.[id]?.evolves_into})
+        // console.log(id, {resolved: otherData.species?.[id]?.evolves_into})
         return usingPre 
             ? otherData.species?.[id]?.evolves_into?.some(row => resolver(row.evolved_species_id))
             : resolver(id)
@@ -97,7 +97,9 @@ const section = (prefix, ...args) => {
     }), {})
 }
 
-export function updateFilterData() {
+let urlQueryValues = {}
+export function updateFilterData(overrides?) {
+    urlQueryValues = overrides ?? urlQueryValues
     Object.entries({
         ...section(
             'Tags',
@@ -119,7 +121,7 @@ export function updateFilterData() {
             spec(Range, 'gender_rate', [0, 8]),
             spec(Range, 'capture_rate', [0, 1_000]), 
             spec(Range, 'base_happiness', [0, 1_000]),
-            otherData.abilities && Options('Ability', Object.values(otherData.abilities ?? {}).map(row => ({label: row.identifier, value: row.id})), (p, s, v) => pkData[p]?.abilities?.some(row => v(row.ability_id))),
+            Options('Ability', Object.values(otherData.abilities ?? {}).map(row => ({label: row.identifier, value: row.id})), (p, s, v) => pkData[p]?.abilities?.some(row => v(row.ability_id))),
         ),
         ...section(
             'Types',
@@ -147,9 +149,9 @@ export function updateFilterData() {
             evol(Range, 'minimum_beauty', [0, 255]),
             evol(Range, 'minimum_affection', [0, 255]),
             // evol(Tag, 'trigger_item_id'),
-            otherData.items && evol(Options, 'held_item_id', Object.values(otherData.items ?? []).filter(item => [10, 12].includes(item.category_id)).map(item => ({label: item.identifier, value: item.id}))),
+            evol(Options, 'held_item_id', Object.values(otherData.items ?? []).filter(item => [10, 12].includes(item.category_id)).map(item => ({label: item.identifier, value: item.id}))),
             // evol(Tag, 'using_an_item', 0, (p, s, v) => otherData.evolutions?.[s]?.some(evo => evo.trigger_item_id && evo.trigger_item_id)),
-            otherData.items && evol(Options, 'trigger_item_id', Object.values(otherData.items ?? []).filter(item => [10, 12].includes(item.category_id)).map(item => ({label: item.identifier, value: item.id}))),
+            evol(Options, 'trigger_item_id', Object.values(otherData.items ?? []).filter(item => [10, 12].includes(item.category_id)).map(item => ({label: item.identifier, value: item.id}))),
             // evol(Tag, 'holding_an_item', 0, (p, s, v) => otherData.evolutions?.[s]?.some(evo => evo.held_item_id && evo.held_item_id)),
             
             evol(Options, 'time_of_day', ['day', 'night', 'dusk', 'full-moon'].map(a => ({label: a, value: a}))),
@@ -172,7 +174,7 @@ export function updateFilterData() {
             move(Range, 'effect_chance', [0, 100]),
             move(Range, 'priority', [0, 6]),
             // move(Options, 'type_id', ),
-            otherData.types && move(Options, 'type_id',
+            move(Options, 'type_id',
                 Object.entries(otherData.types ?? {}).map(e => ({label: e[1].identifier, value: e[1].id})),
             ),
             // otherData.types && Options(
@@ -182,9 +184,15 @@ export function updateFilterData() {
             // ),
         )
     })
-    .filter((entry: any) => !filterData.hasOwnProperty(entry[0]))
-    .forEach((entry: any) => filterData[entry[0]] = entry[1])
-    console.log('filter-data: ', {...filterData})
+    // .filter((entry: any) => !filterData.hasOwnProperty(entry[0]))
+    .forEach((entry: any) => {
+        filterData[entry[0]] = entry[1]
+        filterData[entry[0]].value = urlQueryValues[entry[0]] ?? entry[1].value
+    })
+    
+    // MOVE ENTIRE VALUE PROPERTY INTO URL INSTEAD OF THE SELF OBJECT
+
+    // console.log('filter-data: ', {...filterData})
 }
 
 function between(x, min, max) {
@@ -221,7 +229,7 @@ function ResetFilter (props: {self, copy: () => any}) {
 }
 
 function Options(key, value: {label, value}[] = [], predicate, component = a => a, prefix = '') {
-    console.log('options of ', key, value)
+    // console.log('options of ', key, value)
     const optionsCopy: {label, value}[] = [
         {label: '---', value: null},
         {label: 'Any', value: -1},

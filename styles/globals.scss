@@ -532,6 +532,7 @@ button, select {
   flex: 1;
   overflow-y: scroll;
   overflow-x: hidden;
+  @include no-scrollbar();
 
   &.desktop {
     flex: .75;

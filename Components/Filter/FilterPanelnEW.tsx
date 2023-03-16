@@ -2,9 +2,11 @@ import React from 'react';
 import { filterData, updateFilterData, FilterData, filterChanged, filterChangeConfirmed, TriMark } from './FilterClasses';
 import { CollageGrid, Modal } from '../Utils';
 import { WindowWidth } from '../../pages/_app';
+import { useRouter } from 'next/router';
 
 
 export default function FilterPanelNew(props) {
+    const router = useRouter();
     const windowWidth = React.useContext(WindowWidth)
     const isMobile = windowWidth < 1000
     const [manualUpdate, setManualUpdate] = React.useState(0)
@@ -16,9 +18,26 @@ export default function FilterPanelNew(props) {
             filterChanged.disconnect(update)
         }
     }, [])
+
+    function onConfirm() {
+        props.update?.(); 
+        filterChangeConfirmed.emit();
+        
+        props.updateRoute?.();
+        // const stringy = Object.entries(filterData).reduce((acc, entry) => ({
+        //     ...acc,
+        //     ...(entry[1].hasChanged() ? {[`f_${entry[0]}`]: entry[1].value} : {}),
+        // }), {})
+        // router.push({
+        //     pathname: '/',
+        //     query: {...router.query, ...stringy}
+        // }, undefined, {shallow: true})
+        
+        // console.log('route changing filter \n', stringy)
+    }
     
     return (
-        <Modal label='Filters' onHide={() => {props.update?.(); filterChangeConfirmed.emit()}}>
+        <Modal label='Filters' onHide={onConfirm}>
             <CollageGrid columns={isMobile ? 1 : 2}>
                 <Section header='Tags' type='tag' prefix='Tags'/>
                 <Section header='Types' type='tag' prefix='Types'/>
