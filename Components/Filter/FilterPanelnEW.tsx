@@ -1,6 +1,8 @@
 import React from 'react';
 import { filterData, updateFilterData, FilterData, filterChanged, filterChangeConfirmed, TriMark } from './FilterClasses';
-import { CollageGrid, Modal } from '../Utils';
+// import { CollageGrid, Modal } from '../Utils';
+import CollageGrid from '../Shared/CollageGrid';
+import Modal from '../Shared/Modal';
 import { WindowWidth } from '../../pages/_app';
 import { useRouter } from 'next/router';
 

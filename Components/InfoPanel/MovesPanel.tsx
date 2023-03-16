@@ -1,6 +1,7 @@
 import React from "react";
 import { PkMove, pkData, otherData } from "../DataEnums";
-import { capitalize, parseProse, blankEntryDasher, Scroller } from "../Utils";
+import { capitalize, parseProse, blankEntryDasher } from "../Utils";
+import Scroller from "../Shared/Scroller";
 import { Type } from "../Type";
 import { WindowWidth } from "../../pages/_app";
 import { getFilteredMoves, beginNewFilter, filterChangeConfirmed } from "../Filter/FilterClasses";

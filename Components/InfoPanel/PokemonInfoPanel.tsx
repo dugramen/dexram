@@ -1,5 +1,6 @@
 import React, { ReactElement } from "react";
-import { capitalize, Scroller } from "../Utils";
+import { capitalize } from "../Utils";
+import Scroller from "../Shared/Scroller";
 import { PkMove, OtherData, PkData, ObjectList, pkData, otherData } from "../DataEnums";
 import { Type } from "../Type";
 import Sprite from "../Sprite";
