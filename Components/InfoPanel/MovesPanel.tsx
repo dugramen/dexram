@@ -1,8 +1,8 @@
 import React from "react";
-import { PkMove, pkData, otherData } from "../DataEnums";
+import { PkMove, pkData, otherData } from "../DexData";
 import { capitalize, parseProse, blankEntryDasher } from "../Utils";
 import Scroller from "../Shared/Scroller";
-import { Type } from "../Type";
+import { Type } from "../Shared/Type";
 import { WindowWidth } from "../../pages/_app";
 import { getFilteredMoves, beginNewFilter, filterChangeConfirmed } from "../Filter/FilterClasses";
 
@@ -76,7 +76,12 @@ export default function MovesPanel({id}) {
 
                 <button className="filter-button">Filters</button>
 
-                <div className="tab-container">
+                <TabContainer 
+                    availableMoveTabs={availableMoveTabs} 
+                    setMoveMethodTab={setMoveMethodTab} 
+                    moveMethodTab={moveMethodTab}                
+                />
+                {/* <div className="tab-container">
                     {Object.getOwnPropertyNames(availableMoveTabs).map((tab, index) => (
                         availableMoveTabs[tab] && 
                         <button 
@@ -87,7 +92,7 @@ export default function MovesPanel({id}) {
                             {tab}
                         </button>
                     ))}
-                </div>
+                </div> */}
             </Scroller>
             
             {/* <div className="moves-top-bar">
@@ -141,6 +146,46 @@ export default function MovesPanel({id}) {
                     })
                 }
             </div>
+        </div>
+    )
+}
+
+function TabContainer ({availableMoveTabs, setMoveMethodTab, moveMethodTab}) {
+    const tabRef = React.useRef<any>(null)
+    const [rect, setRect] = React.useState<any>({width: 0, height: 0, left: 0, top: 0})
+
+    React.useEffect(() => {
+        const r = tabRef.current
+        // console.log('client tab ' , moveMethodTab)
+        setRect(old => ({
+                left: r?.offsetLeft ?? old.left,
+                right: r?.offsetRight ?? old.right,
+                width: r?.offsetWidth ?? old.width,
+                height: r?.offsetHeight ?? old.height
+            })
+        )
+    }, [tabRef.current, moveMethodTab, availableMoveTabs])
+
+    return (
+        <div className="move-tab-container">
+            <div className="bg-pill" style={{
+                width: rect.width,
+                height: '100%',
+                left: rect.left,
+                top: rect.top,
+            }}></div>
+
+            {Object.getOwnPropertyNames(availableMoveTabs).map((tab, index) => (
+                availableMoveTabs[tab] && 
+                <button 
+                    onClick={() => setMoveMethodTab(index)} 
+                    key={tab}
+                    className={`tab ${index === moveMethodTab ? 'current' : ''}`}
+                    {...(index === moveMethodTab ? {ref: tabRef} : {})}
+                >
+                    {tab}
+                </button>
+            ))}
         </div>
     )
 }

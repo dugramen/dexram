@@ -1,75 +1,21 @@
 import React, { useEffect } from "react";
-import {cacheFetch, capitalize, snakeCaser} from '../Components/Utils';
-import { typeMap, Type } from "../Components/Type";
+// import {cacheFetch, capitalize, snakeCaser} from '../Components/Utils';
+// import { typeMap, Type } from "../Components/Shared/Type";
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
 import PokemonInfoPanel from "../Components/InfoPanel/PokemonInfoPanel";
 // import FilterPanel from "../Components/FilterPanel";
 import PokedexListItem from "../Components/PokedexListItem";
-import { pkData, otherData, loadOtherData, loadPokeData } from "../Components/DataEnums";
+import { pkData, otherData, loadInData } from "../Components/DexData";
 import FilterPanelNew from "../Components/Filter/FilterPanelnEW";
 import { filterData, updateFilterData, beginNewFilter } from "../Components/Filter/FilterClasses";
 import { WindowWidth } from "./_app";
 import { useRouter } from "next/router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faArrowDownShortWide, faArrowDownWideShort } from "@fortawesome/free-solid-svg-icons";
 
 
-const loadInData = update => {
-  const pkPromise = loadPokeData('');
-  pkPromise.then(update);
-  const speciesPromise = loadOtherData('species');
 
-  ['', 'types', 'stats', 'abilities', 'moves']
-  .forEach(label => loadPokeData(label).then(update));
-
-  ['abilities', 'moves', 'move_effect_prose',
-    'ability_prose', 'types', 'stats', 'egg_groups',
-    'items', 'evolution_triggers'
-  ].forEach(label => loadOtherData(label).then(update));
-
-  ['type_efficacy', 'species_egg_groups']
-  .forEach(label => loadOtherData(label, 'array').then(update))
-
-  Promise.all([pkPromise, speciesPromise]).then(() => {
-    loadOtherData('forms', 'array')
-    .then((a: any) => {
-      Object.entries(a).slice(0, -1)
-      .forEach((entry: any) => {
-        const obj = otherData.species![pkData[entry[0]].pokemon?.species_id]
-        if (obj !== undefined) {
-          if (obj.hasOwnProperty('forms')) {
-            obj.forms?.push(entry[1][0])
-          } else {
-            obj.forms = [entry[1][0]]
-          }
-        }
-      })
-      update()
-    })
-  })
-
-  speciesPromise
-  .then((a: any) => {
-    update()
-    loadOtherData('evolutions', 'array')
-    .then((c: any) => {
-      // console.log({c})
-      Object.values(c).slice(0, -1)
-      .forEach((b: any) => b.forEach(row => {
-        const specId = row.evolved_species_id
-        const prevolveId = a![specId].evolves_from_species_id
-        if (!a![prevolveId]?.hasOwnProperty('evolves_into')) {
-          a![prevolveId].evolves_into = []
-        }
-        a![prevolveId].evolves_into.push(row)
-      }))
-      update()
-    })
-  })
-  return () => {
-    for (let member in pkData) delete pkData[member];
-    for (let member in otherData) delete otherData[member];
-  }
-}
 const statSort = (a, b, statId = 0) => (
   pkData[a]?.stats?.[statId]?.base_stat - pkData[b]?.stats?.[statId]?.base_stat
 )
@@ -132,7 +78,8 @@ export default function Home(props) {
       }
     }, undefined, {shallow: true})
   }
-  const selectedPoke = parseInt(router.query.selectedPoke as string) || 1
+  const [selectedPoke, setRawSelectedPoke] = React.useState(1)
+  // const selectedPoke = parseInt(router.query.selectedPoke as string) || 1
   const setSelectedPoke = updateRoute
 
   const update = () => setPokeDataLoaded(old => old + 1)
@@ -143,7 +90,9 @@ export default function Home(props) {
   React.useEffect(() => loadInData(update), []) 
 
   React.useEffect(() => {
-    setIsShown((router?.query?.selectedPoke ?? -1) > 0)
+    const poke = parseInt(router?.query?.selectedPoke as string) ?? -1
+    setIsShown(poke > 0)
+    setRawSelectedPoke(old => poke > 0 ? poke : old)
   }, [router?.query?.selectedPoke])
 
   React.useEffect(() => {
@@ -209,7 +158,9 @@ export default function Home(props) {
 
           <div>Sort: </div>
           <button onClick={() => setSortAscending(old => -old)}>
-            {sortAscending === 1 ? 'Ascending' : 'Descending'}
+            {sortAscending === 1 
+              ? <FontAwesomeIcon icon={faArrowDownShortWide}/> 
+              : <FontAwesomeIcon icon={faArrowDownWideShort}/>}
           </button>
           <select onChange={event => setSortOption(event.target.value)}>
             {Object.keys(sortOptions)?.map(key => (
@@ -245,18 +196,23 @@ export default function Home(props) {
             setSelectedPoke={setSelectedPoke}
           />
           {
-            isShown && isMobile &&
-            <button style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              background: 'none',
-              outline: 'none',
-              border: 'none',
-              color: 'gray',
-              padding: '30px',
-              fontSize: '1.25rem'
-            }} onClick={() => setSelectedPoke(-1)}> X </button>
+            // isShown && 
+            isMobile &&
+            <div 
+              className="exit-button" 
+              // style={{
+              //   position: 'absolute',
+              //   top: 0,
+              //   left: 0,
+              //   background: 'none',
+              //   outline: 'none',
+              //   border: 'none',
+              //   color: 'gray',
+              //   padding: '30px',
+              //   fontSize: '1.25rem'
+              // }} 
+              onClick={() => setSelectedPoke(-1)}
+            > <FontAwesomeIcon icon={faArrowLeft}/> </div>
           }
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { pkData } from "../DataEnums";
+import { pkData } from "../DexData";
 
 function StatBar({percent}) {
     return <div className="stat-bar-container">

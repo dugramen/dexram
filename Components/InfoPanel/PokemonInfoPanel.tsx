@@ -1,9 +1,9 @@
 import React, { ReactElement } from "react";
 import { capitalize } from "../Utils";
 import Scroller from "../Shared/Scroller";
-import { PkMove, OtherData, PkData, ObjectList, pkData, otherData } from "../DataEnums";
-import { Type } from "../Type";
-import Sprite from "../Sprite";
+import { PkMove, OtherData, PkData, ObjectList, pkData, otherData } from "../DexData";
+// import { Type } from "../Type";
+import Sprite from "../Shared/Sprite";
 import EvolutionTree from "./EvolutionTree";
 import Stats from "./Stats";
 import MovesPanel from "./MovesPanel";
@@ -27,24 +27,52 @@ export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
                 height={144}
             />
 
-            <Scroller innerClassName="Tab-container">
-
-                {tabs.map((tab, index) => (
-                    <div 
-                        key={tab} 
-                        className={`Tab ${index === currentTab ? 'current' : ''}`}
-                        onClick={() => setCurrentTab(index)}
-                    >
-                        {tab}
-                    </div>
-                ))}
+            <Scroller>
+                <div className="Tab-container">
+                    {tabs.map((tab, index) => (
+                        <div 
+                            key={tab} 
+                            className={`Tab ${index === currentTab ? 'current' : ''}`}
+                            onClick={() => setCurrentTab(index)}
+                        >
+                            {tab}
+                        </div>
+                    ))}
+                </div>
             </Scroller>
 
             {/* <div className="Tab-container">
             </div> */}
 
             <div className="Content-container">
-                {[
+                {
+                    currentTab === 0 &&
+                    <AboutPanel id={id}/>
+                }
+
+                {
+                    currentTab === 1 &&
+                    <Stats id={id}/>
+                }
+
+                {
+                    currentTab === 2 &&
+                    <div className="EvolutionPanel">
+                        <EvolutionTree 
+                            id={id} 
+                            setSelectedPoke={setSelectedPoke} 
+                            curId={undefined}                            
+                        />
+                    </div>
+                }
+
+                {
+                    currentTab === 3 &&
+                    <MovesPanel 
+                        id={id} 
+                    />
+                }
+                {/* {[
                     // Info
                     <AboutPanel id={id}/>,
 
@@ -64,7 +92,7 @@ export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
                     <MovesPanel 
                         id={id} 
                     />,
-                ][currentTab]}
+                ][currentTab]} */}
             </div>
         </div>
     )

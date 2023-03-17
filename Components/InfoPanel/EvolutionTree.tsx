@@ -1,8 +1,8 @@
 import React from "react";
 import { capitalize } from "../Utils";
-import Sprite from "../Sprite";
-import { pkData, otherData, Evolution } from "../DataEnums";
-import { Type } from "../Type";
+import Sprite from "../Shared/Sprite";
+import { pkData, otherData, Evolution } from "../DexData";
+import { Type } from "../Shared/Type";
 
 const item_evo = (a) => <div className="evo-horizontal">
     <img 

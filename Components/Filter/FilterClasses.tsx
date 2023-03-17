@@ -1,5 +1,5 @@
-import { otherData, pkData, PkPokemon, Species, Evolution, Move } from "../DataEnums"
-import { Type } from "../Type";
+import { otherData, pkData, PkPokemon, Species, Evolution, Move } from "../DexData"
+import { Type } from "../Shared/Type";
 import DualRangeSlider from "../DualRangeSlider";
 import { capitalize } from "../Utils";
 import ReactSelect from 'react-select';

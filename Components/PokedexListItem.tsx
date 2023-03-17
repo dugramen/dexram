@@ -1,8 +1,8 @@
 import React from "react";
-import { pkData, otherData } from "./DataEnums";
-import { Type } from "./Type";
+import { pkData, otherData } from "./DexData";
+import { Type } from "./Shared/Type";
 import { capitalize } from "./Utils";
-import Sprite from "./Sprite";
+import Sprite from "./Shared/Sprite";
 import { WindowWidth } from "../pages/_app";
 
 export const RenderedPokeList = {}

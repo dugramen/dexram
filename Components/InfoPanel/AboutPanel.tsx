@@ -1,6 +1,6 @@
 import React from 'react';
-import { pkData, otherData } from '../DataEnums';
-import { Type } from '../Type';
+import { pkData, otherData } from '../DexData';
+import { Type } from '../Shared/Type';
 import { capitalize, parseProse } from '../Utils';
 
 function Section(props: {label, children?}) {

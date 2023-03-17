@@ -1,19 +1,23 @@
 import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAngleDoubleRight, faAngleDoubleLeft } from "@fortawesome/free-solid-svg-icons";
 
 export default function Scroller(props: {className?, innerClassName?, children?}) {
     const [scrollAtEnds, setScrollAtEnds] = React.useState(-2)
     const scroller = React.useRef<any>(null)
 
     function handleScrollCheck() {
-        console.log('scroll checking')
+        // console.log('scroll checking')
+        const [width, scrollWidth, scrollLeft] = [
+            scroller.current?.clientWidth,
+            scroller.current?.scrollWidth,
+            scroller.current?.scrollLeft,
+        ]
         scroller.current && setScrollAtEnds(
-            scroller.current?.clientWidth >= scroller.current?.scrollWidth
-            ? -2
-            : scroller.current?.scrollLeft <= 0
-                ? -1
-                : scroller.current?.scrollLeft + scroller.current?.clientWidth >= scroller.current?.scrollWidth
-                    ? 1
-                    : 0
+            width >= scrollWidth ? -2
+            : scrollLeft <= 0 ? -1
+            : scrollLeft + width >= scrollWidth - 1 ? 1
+            : 0
         )
     }
 
@@ -30,9 +34,12 @@ export default function Scroller(props: {className?, innerClassName?, children?}
         >
             {props.children}
         </div>
-        {scrollAtEnds !== -2 && <>
-            {scrollAtEnds !== -1 && <div className="arrow left"><div>🢔</div></div>}
-            {scrollAtEnds !== 1 && <div className="arrow right"><div>🢖</div></div>}
-        </>}
+        <div className={"arrow left " + (![-2, -1].includes(scrollAtEnds) ? 'shown': 'hidden')}>
+            <FontAwesomeIcon icon={faAngleDoubleLeft}/>
+            {/* <div>{'<'}</div> */}
+        </div>
+        <div className={"arrow right " + (![-2, 1].includes(scrollAtEnds) ? 'shown': 'hidden')}>
+            <FontAwesomeIcon icon={faAngleDoubleRight}/>
+        </div>
     </div>
 }

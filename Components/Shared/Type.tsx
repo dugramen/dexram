@@ -1,6 +1,6 @@
 import React from "react";
-import { capitalize } from "./Utils";
-import { otherData } from "./DataEnums";
+import { capitalize } from "../Utils";
+import { otherData } from "../DexData";
 
 export const typeMap = {
     'Normal': 'A8A77A',
