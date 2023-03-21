@@ -45,9 +45,9 @@
   --bg-color-dim: hsl(0, 0%, 15%);
   --bg-color-mid: hsl(0, 0%, 20%);
   --bg-color-light: dimgray;
-  --text-color: gray;
-  --text-color-light: darkgray;
-  --text-color-extra-light: lightgray;
+  --text-color: hsl(0, 0%, 60%);
+  --text-color-light: hsl(0, 0%, 75%);
+  --text-color-extra-light: hsl(0, 0%, 85%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -120,6 +120,8 @@ a {
   }
 }
 
+
+
 @mixin no-scrollbar() {
   &::-webkit-scrollbar {
     display: none;
@@ -169,17 +171,18 @@ input[type=number] {
   transition: .3s;
   
   &::placeholder {
-    color: var(--bg-color-light);
+    color: var(--text-color);
+    // color: red;
     // color: dimgray;
     transition: .3s;
   }
 
   &:hover {
     // color: darkgray;
-    color: --text-color-light;
+    color: var(--text-color-light);
     &::placeholder {
       // color: gray;
-      color: var(--text-color)
+      color: var(--text-color-light)
     }
   }
 }
@@ -188,7 +191,7 @@ button, select {
   outline: none;
   border: none;
   background: none;
-  color: gray;
+  color: var(--text-color);
   padding: 6px 16px;
   cursor: pointer;
   transition: .3s;
@@ -291,9 +294,9 @@ select { min-width: 0;}
 }
 
 .FilterPanel {
-  color: darkgray;
+  color: var(--text-color-light);
   .enabled {
-    color: lightgray;
+    color: var(--text-color-extra-light);
   }
 
   .checkbox {
@@ -477,11 +480,11 @@ select { min-width: 0;}
   transition: .3s;
   background-color: transparent;
   // background-color: hsla(0, 0%, 100%, .15);
-  color: gray;
+  color: var(--text-color);
   overflow: hidden;
 
   &:hover {
-    color: darkgray;
+    color: var(--text-color-light);
     background-color: hsla(0, 0%, 100%, .15);
     // font-weight: bold;
     padding-left: 24px;
@@ -553,7 +556,7 @@ select { min-width: 0;}
     left: 0;
     cursor: pointer;
     background-color: var(--bg-color);
-    color: gray;
+    color: var(--text-color);
     margin: 40px 10px;
     // filter: brightness(.85);
     width: $width;
@@ -573,7 +576,7 @@ $card-spacing: 32px;
   flex-direction: column;
   align-items: center;
   height: 100%;
-  color: gray;
+  color: var(--text-color);
   padding: 0 $card-spacing;
 
   img {
@@ -597,7 +600,7 @@ $card-spacing: 32px;
 
     .Tab {
       font-weight: normal;
-      color: gray;
+      color: var(--text-color);
       padding: 10px 30px;
       border-radius: 10px;
       background-color: black;
@@ -608,7 +611,7 @@ $card-spacing: 32px;
       &::after {
         position: absolute;
         inset: 0px 2px;
-        border-bottom: 2px solid gray;
+        border-bottom: 2px solid var(--text-color);
         transition: .3s;
         transform: scaleX(0);
         transform-origin: center;
@@ -616,7 +619,7 @@ $card-spacing: 32px;
       }
 
       &:hover {
-        color: darkgray;
+        color: var(--text-color-light);
         // &::after {
         //   border-bottom-color: lightgray;
         //   transform: scaleX(1);
@@ -626,9 +629,9 @@ $card-spacing: 32px;
       
       &.current {
         font-weight: bold;
-        color: darkgray;
+        color: var(--text-color-light);
         &::after {
-          border-bottom-color: darkgray;
+          border-bottom-color: var(--text-color-light);
           transform: scaleX(1);
         }
       }
@@ -725,7 +728,7 @@ $card-spacing: 32px;
       }
 
       .section {
-        color: gray;
+        color: var(--text-color);
         // background-color: hsl(0, 0%, 10%);
         border-radius: 30px;
         align-self: baseline;
@@ -747,7 +750,7 @@ $card-spacing: 32px;
         .right {
           text-align: start;
           // font-size: smaller;
-          color: gray;
+          color: var(--text-color)gray;
         }
       }
 
@@ -920,7 +923,7 @@ $card-spacing: 32px;
 
       .tab {
         background-color: transparent;
-        color: darkgray;
+        color: var(--text-color-light);
         // border-radius: 100px;
         border: none;
         outline: none;
@@ -1013,7 +1016,7 @@ $card-spacing: 32px;
     box-shadow: none;
   }
   .react-select__input-container, .react-select__single-value {
-    color: darkgray;
+    color: var(--text-color-light);
     margin-left: 8px;
   }
   .react-select__indicators {

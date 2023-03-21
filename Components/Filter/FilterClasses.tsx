@@ -228,36 +228,72 @@ function ResetFilter (props: {self, copy: () => any}) {
     }}>↺</div>
 }
 
+const MyOption = props => {
+    console.log('seelct poops ', props)
+    return (
+        <TriMark 
+            value={props.data.value}        />
+    //   <article ref={innerRef} {...innerProps} className="custom-option">
+    //     <h4>{props.data.artist}</h4>
+    //     <div className="sub">{props.data.title} </div>
+    //   </article>
+    );
+  };
+
 function Options(key, value: {label, value}[] = [], predicate, component = a => a, prefix = '') {
     // console.log('options of ', key, value)
-    const optionsCopy: {label, value}[] = [
-        {label: '---', value: null},
+    const baseCopy = [
         {label: 'Any', value: -1},
-        ...value
+        {label: 'None', value: -2}
     ]
+    // const optionsCopier = () => [
+    //     {label: 'Any', value: -1},
+    //     ...value
+    // ]
     const self: FilterData = {
-        value: optionsCopy[0],
-        default: optionsCopy,
+        value: [],
+        default: [...baseCopy, ...value],
     }
-    self.hasChanged = () => self.value.value !== null
-    self.calculator = a => self.value.label === 'Any'
-        ? a != false
-        : a === self.value?.value
+    self.hasChanged = () => (self.value.length ?? 0) > 0
+    self.calculator = a => {
+        for (let row of self.value) {
+            if (row.value === -1) {
+                return a != false
+            }
+            if (row.value === a) {
+                return true
+            }
+            if (row.value === -2) {
+                return a == false
+            }
+        }
+        return false
+    }
+    
+    // self.value.some(row => row.value === -1 || row.value === a)
+    
+    // self.value.label === 'Any'
+    //     ? a != false
+    //     : a === self.value?.value
     self.predicate = (pk, sp) => predicate(pk, sp, self.calculator)
     self.component = () => {
         return (<div className="hflex">
             <div className="filter-label-header">
-                <ResetFilter self={self} copy={() => optionsCopy[0]}/>
+                <ResetFilter self={self} copy={() => []}/>
                 {key}
             </div>
             <ReactSelect
+                // value={self.value}
                 value={self.value}
+                isMulti={true}
+                
                 options={self.default}
                 onChange={(newVal) => {self.value = newVal; console.log({newVal}); stateUpdater()}}
                 // menuPosition='fixed'
                 className='react-select-container'
                 classNamePrefix='react-select'
                 menuPlacement='top'
+                // components={{Option: MyOption}}
             />
         </div>
         )

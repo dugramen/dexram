@@ -58,6 +58,7 @@ export default function Home(props) {
   const [sortOption, setSortOption] = React.useState('default')
   const [sortAscending, setSortAscending] = React.useState(1)
   const [isShown, setIsShown] = React.useState(false)
+  const [isPending, startTransition] = React.useTransition()
 
   const filteredPokes = React.useRef<any[]>([])
   const windowWidth = React.useContext(WindowWidth)
@@ -146,8 +147,8 @@ export default function Home(props) {
           type='search'
           className="search"
           placeholder="Search"
-          onChange={(event) => setSearch(event.target.value)}
-          value={search}
+          onChange={(event) => startTransition(() => setSearch(event.target.value))}
+          // value={search}
         />
 
         <div className="type-container">
