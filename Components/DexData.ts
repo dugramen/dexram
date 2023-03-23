@@ -1,4 +1,5 @@
 
+import { type } from "os"
 import { snakeCaser } from "./Utils"
 
 export const pkData: OList<PkData> = {}
@@ -35,7 +36,7 @@ export interface Move {
     contest_effect_id, super_contest_effect_id
 }
 export interface MoveEffectProse { move_effect_id, local_language_id, short_effect, effect }
-export interface Ability { id, identifier, generation_id, is_main_series }
+export interface Ability { id, identifier, generation_id, is_main_series, effects?: Set<string> }
 export interface AbilityProse { ability_id, local_language_id, short_effect, effect }
 export interface Types { id, identifier, generation_id, damage_class_id }
 export interface TypeEfficacy { damage_type_id, target_type_id, damage_factor }
@@ -56,6 +57,10 @@ export interface OtherData {
     type_efficacy?: OList<TypeEfficacy[]>,
     items?: OList<Item>,
     evolution_triggers?: OList<{id,identifier}>,
+    // prose_mechanic?: Set<string>,
+    // prose_type?: Set<string>,
+    // prose_move?: Set<string>,
+    ability_prose_effect?: Map<string, Set<number>>,
 }
 
 export interface Forms {
@@ -159,12 +164,38 @@ export function loadInData (update) {
     ['', 'types', 'stats', 'abilities', 'moves']
     .forEach(label => loadPokeData(label).then(update));
   
-    ['abilities', 'moves', 'move_effect_prose',
-      'ability_prose', 'types', 'stats', 'egg_groups',
+    ['moves', 'types', 'stats', 'egg_groups',
       'items', 'evolution_triggers'
     ].forEach(label => loadOtherData(label).then(update));
+
+
+    // ['move_effect_prose', 'ability_props']
+    Promise.all(['ability_prose', 'abilities']
+    .map(l => loadOtherData(l)))
+    .then(() => {
+        otherData.ability_prose_effect = new Map()
+        Object.entries(otherData.ability_prose ?? {})
+        .forEach(entry => {
+            const row = entry[1]
+            const [ignore, ...splits] = entry[1].short_effect.split('{')
+            splits.forEach(split => {
+                // const index = split.indexOf(':')
+                const effect = split.substring(0, split.indexOf('}'))
+                if (!otherData.ability_prose_effect?.has(effect)) {
+                    otherData.ability_prose_effect?.set(effect, new Set())
+                }
+                otherData.ability_prose_effect?.get(effect)?.add(row.ability_id)
+                if (otherData.abilities![row.ability_id].effects === undefined) {
+                    otherData.abilities![row.ability_id].effects = new Set()
+                }
+                otherData.abilities![row.ability_id].effects?.add(effect)
+            })
+        })
+        console.log('ability prose set ', otherData.ability_prose_effect)
+        update()
+    })
   
-    ['type_efficacy', 'species_egg_groups']
+    ;['type_efficacy', 'species_egg_groups']
     .forEach(label => loadOtherData(label, 'array').then(update))
   
     Promise.all([pkPromise, speciesPromise]).then(() => {

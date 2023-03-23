@@ -122,6 +122,13 @@ export function updateFilterData(overrides?) {
             spec(Range, 'capture_rate', [0, 1_000]), 
             spec(Range, 'base_happiness', [0, 1_000]),
             Options('Ability', Object.values(otherData.abilities ?? {}).map(row => ({label: row.identifier, value: row.id})), (p, s, v) => pkData[p]?.abilities?.some(row => v(row.ability_id))),
+            Options('Ability Effect', 
+                Array.from(otherData.ability_prose_effect?.entries() ?? []).map(entry => ({
+                    label: entry[0],
+                    value: entry[0]
+                })), 
+                (p, s, v) => pkData[p]?.abilities?.some(row => Array.from(otherData.abilities?.[row.ability_id].effects ?? []).some(effect => v(effect)))
+            )
         ),
         ...section(
             'Types',
