@@ -59,7 +59,7 @@ export default function EvolutionTree({id, setSelectedPoke, root = undefined, cu
 
     return <>
         <div className="evolution-triggers">
-            {triggerList.map(entry => <div className="evolution-entry">{
+            {triggerList.map(entry => <div className="evolution-entry" key={entry.toString()}>{
                 entry[1]?.(otherData.evolutions?.[curId]?.[formCounter]?.[entry[0]])
             }</div>)}
         </div>
@@ -72,6 +72,7 @@ export default function EvolutionTree({id, setSelectedPoke, root = undefined, cu
                     ?.filter(f => (f.is_battle_only === 0 && f.form_identifier !== 'starter'))
                     .map(form => <PokeEntry
                         pokeId={form.pokemon_id}
+                        key={JSON.stringify(form)}
                         onClick={() => setSelectedPoke(form.pokemon_id)}
                     />)
                 : <PokeEntry 

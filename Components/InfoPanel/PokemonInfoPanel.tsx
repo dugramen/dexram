@@ -8,15 +8,36 @@ import EvolutionTree from "./EvolutionTree";
 import Stats from "./Stats";
 import MovesPanel from "./MovesPanel";
 import AboutPanel from "./AboutPanel";
+import SoundPanel from "./SoundPanel";
 
 interface Props {
     id: number,
     setSelectedPoke,
 }
 
+
 export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
-    const [currentTab, setCurrentTab] = React.useState(0)
-    const tabs = ['About', 'Stats', 'Evolutions', 'Moves']
+    const [currentTab, setCurrentTab] = React.useState<keyof typeof tabMap>('About')
+    // const tabs = ['About', 'Stats', 'Evolutions', 'Moves']
+    
+    const tabMap = {
+        About: () => <AboutPanel id={id}/>,
+        Stats: () => <Stats id={id}/>,
+        Evolutions: () => (
+            <div className="EvolutionPanel">
+                <EvolutionTree 
+                    id={id} 
+                    setSelectedPoke={setSelectedPoke} 
+                    curId={undefined}                            
+                />
+            </div>
+        ),
+        Moves: () => <MovesPanel id={id}/>,
+        // Descriptions: () => {},
+        // Sprites: () => {},
+        Sounds: () => <SoundPanel id={id}/>,
+        // Locations: () => {},
+    }
 
     return (
         <div className="InfoPanel">
@@ -29,11 +50,11 @@ export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
 
             <Scroller>
                 <div className="Tab-container">
-                    {tabs.map((tab, index) => (
+                    {Object.keys(tabMap).map((tab: any) => (
                         <div 
                             key={tab} 
-                            className={`Tab ${index === currentTab ? 'current' : ''}`}
-                            onClick={() => setCurrentTab(index)}
+                            className={`Tab ${tab === currentTab ? 'current' : ''}`}
+                            onClick={() => setCurrentTab(tab)}
                         >
                             {tab}
                         </div>
@@ -45,7 +66,8 @@ export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
             </div> */}
 
             <div className="Content-container">
-                {
+                {tabMap[currentTab]?.() ?? []}
+                {/* {
                     currentTab === 0 &&
                     <AboutPanel id={id}/>
                 }
@@ -71,7 +93,7 @@ export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
                     <MovesPanel 
                         id={id} 
                     />
-                }
+                } */}
                 {/* {[
                     // Info
                     <AboutPanel id={id}/>,

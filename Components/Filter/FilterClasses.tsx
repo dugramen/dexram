@@ -65,9 +65,9 @@ export function beginNewFilter() {
 
 type StringAuto<T> = T | (string & Record<never, never>)
 
-const move = (T, key: StringAuto<keyof Move>, def: any = undefined) => {
+const move = (T, key: StringAuto<keyof Move>, def?, customPredicate?: (id, v) => any) => {
     // console.log({moveMethodMap})
-    moveMethodMap[key] = (id, v) => v(otherData.moves?.[id]?.[key])
+    moveMethodMap[key] = customPredicate ?? ((id, v) => v(otherData.moves?.[id]?.[key]))
     return T(key, def, moveMethodFunc)
 }
 
@@ -123,11 +123,11 @@ export function updateFilterData(overrides?) {
             spec(Range, 'base_happiness', [0, 1_000]),
             Options('Ability', Object.values(otherData.abilities ?? {}).map(row => ({label: row.identifier, value: row.id})), (p, s, v) => pkData[p]?.abilities?.some(row => v(row.ability_id))),
             Options('Ability Effect', 
-                Array.from(otherData.ability_prose_effect?.entries() ?? []).map(entry => ({
-                    label: entry[0],
-                    value: entry[0]
+                Array.from(otherData.prose_effect_list?.values() ?? []).map(val => ({
+                    label: val.replace(':', ' : '),
+                    value: val
                 })), 
-                (p, s, v) => pkData[p]?.abilities?.some(row => Array.from(otherData.abilities?.[row.ability_id].effects ?? []).some(effect => v(effect)))
+                (p, s, v) => pkData[p]?.abilities?.some(row => Array.from(otherData.ability_prose?.[row.ability_id]?.effect_list ?? []).some(effect => v(effect)))
             )
         ),
         ...section(
@@ -184,11 +184,12 @@ export function updateFilterData(overrides?) {
             move(Options, 'type_id',
                 Object.entries(otherData.types ?? {}).map(e => ({label: e[1].identifier, value: e[1].id})),
             ),
-            // otherData.types && Options(
-            //     'Type', 
-            //     Object.entries(otherData.types ?? {}).map(e => ({label: e[1].identifier, value: e[1].id}) ), 
-            //     (pk, sp, v) => pkData[pk]?.moves?.some(row => v(otherData.moves?.[row.move_id]?.type_id))
-            // ),
+            // Data is currently not good enough
+            // move(Options, 'effect_id', Array.from(otherData.prose_effect_list ?? []).map(val => ({
+            //     label: val.replace(':', ' : '),
+            //     value: val
+            // })), (id, v) => Array.from(otherData.move_effect_prose?.[otherData.moves?.[id]?.effect_id]?.effect_list ?? []).some(effect => v(effect)))
+            
         )
     })
     // .filter((entry: any) => !filterData.hasOwnProperty(entry[0]))

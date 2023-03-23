@@ -35,17 +35,15 @@ export interface Move {
     effect_id, effect_chance, contest_type_id, 
     contest_effect_id, super_contest_effect_id
 }
-export interface MoveEffectProse { move_effect_id, local_language_id, short_effect, effect }
-export interface Ability { id, identifier, generation_id, is_main_series, effects?: Set<string> }
-export interface AbilityProse { ability_id, local_language_id, short_effect, effect }
+export interface Ability { id, identifier, generation_id, is_main_series }
+export interface MoveEffectProse { move_effect_id, local_language_id, short_effect, effect, effect_list?: Set<string> }
+export interface AbilityProse { ability_id, local_language_id, short_effect, effect, effect_list?: Set<string>  }
 export interface Types { id, identifier, generation_id, damage_class_id }
 export interface TypeEfficacy { damage_type_id, target_type_id, damage_factor }
 export interface OtherData { 
     moves?: OList<Move>, 
     abilities?: OList<Ability>, 
-    move_effect_prose?: OList<MoveEffectProse>,
     types?: OList<Types>,
-    ability_prose?: OList<AbilityProse>,
     species?: OList<Species>,
     species_dex_numbers?: OList<DexNumbers>,
     evolutions?: OList<Evolution[]>,
@@ -60,7 +58,10 @@ export interface OtherData {
     // prose_mechanic?: Set<string>,
     // prose_type?: Set<string>,
     // prose_move?: Set<string>,
-    ability_prose_effect?: Map<string, Set<number>>,
+    ability_prose?: OList<AbilityProse>,
+    move_effect_prose?: OList<MoveEffectProse>,
+    prose_effect_list?: Set<string>,
+    
 }
 
 export interface Forms {
@@ -164,34 +165,41 @@ export function loadInData (update) {
     ['', 'types', 'stats', 'abilities', 'moves']
     .forEach(label => loadPokeData(label).then(update));
   
-    ['moves', 'types', 'stats', 'egg_groups',
+    ['moves', 'abilities', 'types', 'stats', 'egg_groups',
       'items', 'evolution_triggers'
     ].forEach(label => loadOtherData(label).then(update));
 
 
-    // ['move_effect_prose', 'ability_props']
-    Promise.all(['ability_prose', 'abilities']
-    .map(l => loadOtherData(l)))
-    .then(() => {
-        otherData.ability_prose_effect = new Map()
-        Object.entries(otherData.ability_prose ?? {})
+    // ['move_effect_prose', 'ability_prose']
+    const proseEffectParser = (type: 'move_effect' | 'ability') => {
+        const isMove = type === 'move_effect'
+        // const holder = isMove ? otherData.move_effect_prose : otherData.ability_prose
+        const holder: OtherData['move_effect_prose'] | OtherData['ability_prose'] = isMove
+            ? otherData.move_effect_prose
+            : otherData.ability_prose
+        Object.entries(holder ?? {})
         .forEach(entry => {
             const row = entry[1]
-            const [ignore, ...splits] = entry[1].short_effect.split('{')
+            const [ignore, ...splits] = row.short_effect.split('{')
             splits.forEach(split => {
-                // const index = split.indexOf(':')
                 const effect = split.substring(0, split.indexOf('}'))
-                if (!otherData.ability_prose_effect?.has(effect)) {
-                    otherData.ability_prose_effect?.set(effect, new Set())
+                otherData.prose_effect_list?.add(effect)
+                
+                const id = row[type + '_id']
+                if (holder![id].effect_list === undefined) {
+                    holder![id].effect_list = new Set()
                 }
-                otherData.ability_prose_effect?.get(effect)?.add(row.ability_id)
-                if (otherData.abilities![row.ability_id].effects === undefined) {
-                    otherData.abilities![row.ability_id].effects = new Set()
-                }
-                otherData.abilities![row.ability_id].effects?.add(effect)
+                holder![id].effect_list?.add(effect)
             })
         })
-        console.log('ability prose set ', otherData.ability_prose_effect)
+    }
+    Promise.all(['ability_prose', 'move_effect_prose']
+    .map(l => loadOtherData(l)))
+    .then(() => {
+        otherData.prose_effect_list = new Set()
+        proseEffectParser('ability')
+        // proseEffectParser('move_effect')
+        // console.log('prose effect list ', otherData.prose_effect_list, otherData.ability_prose, otherData.move_effect_prose)
         update()
     })
   

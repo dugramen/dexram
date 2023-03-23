@@ -30,11 +30,11 @@ export default function Stats({id}) {
                 </React.Fragment>
             })
             .concat(
-            <>
+            <React.Fragment key={'Total'}>
                 <div>Total</div>
                 <div>{pkData?.[id]?.stats?.reduce((accum, stat) => accum + stat.base_stat, 0)}</div>
                 <StatBar percent={(pkData[id]?.stats?.reduce((accum, stat) => accum + stat.base_stat, 0) ?? 0) / (255*6)}/>
-            </>)
+            </React.Fragment>)
             }
         </div>
     </div>
