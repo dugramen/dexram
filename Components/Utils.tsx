@@ -16,6 +16,9 @@ export async function cacheFetch(request: RequestInfo | URL, options?: any) {
 export const capitalize = (string: string) => {
     return (string?.charAt(0).toUpperCase() + string?.slice(1)) ?? '';
 } 
+export const deepCapitalize = (text: string) => {
+    return text.split?.(/[\s,\-\_]+/).reduce((acc, val) => acc + (acc !== '' ? ' ' : '') + capitalize(val), '') ?? `${text}`
+}
 
 export function snakeCaser(...strings: (any)[]) {
     let result = ''
@@ -62,3 +65,13 @@ export function parseProse(text: string, data) {
 } 
 
 export const blankEntryDasher = (text) => text === "" ? "--" : text
+
+export const simpleHash = str => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash &= hash; // Convert to 32bit integer
+    }
+    return new Uint32Array([hash])[0].toString(36);
+};

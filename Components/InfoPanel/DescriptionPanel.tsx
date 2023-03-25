@@ -1,15 +1,6 @@
 import React from "react";
 import { otherData } from "../DexData";
-
-const simpleHash = str => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash &= hash; // Convert to 32bit integer
-    }
-    return new Uint32Array([hash])[0].toString(36);
-};
+import { simpleHash } from "../Utils";
 
 export default function DescriptionPanel(props) {
     const usedDescriptions = new Set()
@@ -20,7 +11,7 @@ export default function DescriptionPanel(props) {
                 if (usedDescriptions.has(hash)) { return [] }
                 usedDescriptions.add(hash)
                 return <React.Fragment key={row.version_id}>
-                    <div>
+                    <div className="versions">
                         {row.version_id}
                     </div>
                     <div>

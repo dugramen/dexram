@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 // import { typeMap, Type } from "../Components/Shared/Type";
 import { FixedSizeList as List } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
-import PokemonInfoPanel from "../Components/InfoPanel/PokemonInfoPanel";
+import PokemonInfoPanel from "../Components/InfoPanel/InfoPanelContainer";
 // import FilterPanel from "../Components/FilterPanel";
 import PokedexListItem from "../Components/PokedexListItem";
 import { pkData, otherData, loadInData } from "../Components/DexData";

@@ -108,11 +108,11 @@ const handlers: {[a: string]: Handler} = {
   pokedex_entries: {
     handler: grouperHof(true, [0, 2]),
     selector: a => a[9],
-    // selector: a => Object.entries(a[9]).reduce((acc, entry) => ({
-    //   ...acc,
-    //   [entry[0]]: Object.values(entry[1] ?? {}).at(-1)
-    // }), {})
-  }
+  },
+  encounters: {
+    handler: grouperHof(true, [4]),
+    selector: a => a
+  },
 }
 
 const default_handler: Handler = {
@@ -124,7 +124,7 @@ export default async function dataHandler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  cache.clear()
+  // cache.clear()
   
   const start = Date.now();
   const query = req.query.params?.[0] ?? null

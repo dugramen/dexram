@@ -10,6 +10,7 @@ import MovesPanel from "./MovesPanel";
 import AboutPanel from "./AboutPanel";
 import SoundPanel from "./SoundPanel";
 import DescriptionPanel from "./DescriptionPanel";
+import LocationPanel from "./LocationPanel";
 
 interface Props {
     id: number,
@@ -35,9 +36,9 @@ export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
         ),
         Moves: () => <MovesPanel id={id}/>,
         Descriptions: () => <DescriptionPanel id={id}/>,
+        Locations: () => <LocationPanel id={id}/>,
         // Sprites: () => {},
         Sounds: () => <SoundPanel id={id}/>,
-        // Locations: () => {},
     }
 
     return (
