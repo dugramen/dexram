@@ -811,6 +811,12 @@ $card-spacing: 32px;
     }
   }
 
+  .DescriptionPanel {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 12px;
+  }
+
   .SoundPanel {
     display: flex;
     flex-direction: column;

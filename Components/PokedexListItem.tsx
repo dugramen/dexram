@@ -51,7 +51,7 @@ export default function PokedexListItem({id, style, setSelectedPoke}) {
 
         {windowWidth >= 1200 && 
           <div className="stats-container">
-            {data.stats?.map(stat => <div key={stat.stat_id}>{stat.base_stat}</div>)}
+            {data?.stats?.map(stat => <div key={stat.stat_id}>{stat.base_stat}</div>)}
             {/* {data?.stats?.reduce((acc, val) => acc + `${['', 'hp', 'atk', 'def', 'spa', 'spd', 'spe'][val.stat_id]} ${val.base_stat}  `, '')} */}
             {/* {data?.stats?.map?.(stat => stat?.base_stat).toString().replaceAll(',', ' ') || ''} */}
           </div>

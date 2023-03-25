@@ -69,7 +69,8 @@ const handlers: {[a: string]: Handler} = {
           result[id] = output[version][id]
         }
       }
-      return {...result, headers: output.headers}
+      // return {...result, headers: output.headers}
+      return result
     }
   },
   pokemon_stats: {
@@ -104,6 +105,14 @@ const handlers: {[a: string]: Handler} = {
     handler: grouperHof(true, [3]),
     selector: a => a
   },
+  pokedex_entries: {
+    handler: grouperHof(true, [0, 2]),
+    selector: a => a[9],
+    // selector: a => Object.entries(a[9]).reduce((acc, entry) => ({
+    //   ...acc,
+    //   [entry[0]]: Object.values(entry[1] ?? {}).at(-1)
+    // }), {})
+  }
 }
 
 const default_handler: Handler = {
@@ -115,7 +124,7 @@ export default async function dataHandler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // cache.clear()
+  cache.clear()
   
   const start = Date.now();
   const query = req.query.params?.[0] ?? null
@@ -166,5 +175,5 @@ export default async function dataHandler(
   
   const end = Date.now();
   console.log(`Execution time: ${end - start} ms`);
-  res.status(200).json(selected_handler.selector(output, req.query.params))
+  res.status(200).json({...selected_handler.selector(output, req.query.params), headers: output.headers})
 }

@@ -49,19 +49,14 @@ export interface OtherData {
     evolutions?: OList<Evolution[]>,
     species_egg_groups?: OList<SpeciesEggGroup[]>,
     egg_groups?: OList<{id, identifier}>,
-    stats?: OList<{
-        id, damage_class_id, identifier, is_battle_only, game_index
-    }>,
+    stats?: OList<{ id, damage_class_id, identifier, is_battle_only, game_index }>,
     type_efficacy?: OList<TypeEfficacy[]>,
     items?: OList<Item>,
     evolution_triggers?: OList<{id,identifier}>,
-    // prose_mechanic?: Set<string>,
-    // prose_type?: Set<string>,
-    // prose_move?: Set<string>,
     ability_prose?: OList<AbilityProse>,
     move_effect_prose?: OList<MoveEffectProse>,
     prose_effect_list?: Set<string>,
-    
+    pokedex_entries?: OList<{ species_id, version_id, language_id, flavor_text }[]>
 }
 
 export interface Forms {
@@ -141,20 +136,43 @@ export function loadOtherData(key, dataType: 'array' | 'object' = 'object') {
         fetch(`/api/data/${key}`)
         .then(res => res.json())
         .then(data => {
-            otherData[key] = {headers: data.headers}
-            const reducer = (row) => data.headers.reduce((accum, val, index) => ({
-                ...accum,
-                [val]: row[index]
-            }), {})
-            Object.getOwnPropertyNames(data).forEach(rowId => {
-                otherData[key][rowId] = dataType === 'object'
-                ? reducer(data[rowId])
-                : data[rowId].map(row => reducer(row))
-            })
-            console.log(otherData)
+            const {headers, ...resOfData} = data
+            // console.log('deep parsed ', key, deepJsonParser(resOfData, headers))
+            otherData[key] = deepJsonParser(resOfData, headers)
+            // otherData[key] = {headers: data.headers}
+            // const reducer = (row) => data.headers.reduce((accum, val, index) => ({
+            //     ...accum,
+            //     [val]: row[index]
+            // }), {})
+            // Object.getOwnPropertyNames(data).forEach(rowId => {
+            //     otherData[key][rowId] = dataType === 'object'
+            //     ? reducer(data[rowId])
+            //     : data[rowId].map(row => reducer(row))
+            // })
+            console.log(key, otherData)
             res(otherData[key])
         })
     })
+}
+
+function deepJsonParser(old: any, headers: any) {
+    if (Array.isArray(old)) {
+        if (typeof old.at(0) === 'object') {
+            return old.map(elem => deepJsonParser(elem, headers))
+        } else {
+            return old.reduce((acc, val, index) => ({
+                ...acc,
+                [headers[index]]: val
+            }), {})
+        }
+    } else if (typeof old === 'object') {
+        return Object.entries(old).reduce((acc, entry) => ({
+            ...acc,
+            [entry[0]]: deepJsonParser(entry[1], headers)
+        }), {})
+    } else {
+        return old
+    }
 }
 
 export function loadInData (update) {
@@ -166,9 +184,10 @@ export function loadInData (update) {
     .forEach(label => loadPokeData(label).then(update));
   
     ['moves', 'abilities', 'types', 'stats', 'egg_groups',
-      'items', 'evolution_triggers'
+      'items', 'evolution_triggers',
     ].forEach(label => loadOtherData(label).then(update));
-
+    
+    loadOtherData('pokedex_entries').then(update);
 
     // ['move_effect_prose', 'ability_prose']
     const proseEffectParser = (type: 'move_effect' | 'ability') => {
