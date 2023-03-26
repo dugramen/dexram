@@ -63,9 +63,10 @@ export interface OtherData {
         min_level, max_level 
     }[]>,
     locations?: OList<{ id, region_id, identifier }>,
-    location_areas?: OList<{id,location_id,game_index,identifier}>,
-    encounter_methods?: OList<{id,identifier,order}>,
-    encounter_slots?: OList<{id,version_group_id,encounter_method_id,slot,rarity}>
+    location_areas?: OList<{ id, location_id, game_index, identifier }>,
+    encounter_methods?: OList<{ id, identifier, order }>,
+    encounter_slots?: OList<{ id, version_group_id, encounter_method_id, slot, rarity }>,
+    versions?: OList<{ id, version_group_id, identifier, color }>
 }
 
 export interface Forms {
@@ -194,7 +195,8 @@ export function loadInData (update) {
   
     ['moves', 'abilities', 'types', 'stats', 'egg_groups',
       'items', 'evolution_triggers', 'encounters', 'locations', 
-      'location_areas', 'encounter_methods', 'encounter_slots'
+      'location_areas', 'encounter_methods', 'encounter_slots',
+      'versions',
     ].forEach(label => loadOtherData(label).then(update));
     
     loadOtherData('pokedex_entries').then(update);

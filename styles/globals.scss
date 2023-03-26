@@ -866,6 +866,13 @@ $card-spacing: 32px;
     .versions {
       grid-column: 1/3;
       justify-self: center;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .description {
+      margin-bottom: 12px;
     }
   }
 

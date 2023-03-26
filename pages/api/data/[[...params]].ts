@@ -124,7 +124,7 @@ export default async function dataHandler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // cache.clear()
+  cache.clear()
   
   const start = Date.now();
   const query = req.query.params?.[0] ?? null
