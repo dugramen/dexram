@@ -5,6 +5,7 @@ import Scroller from "../Shared/Scroller";
 import { Type } from "../Shared/Type";
 import { WindowWidth } from "../../pages/_app";
 import { getFilteredMoves, beginNewFilter, filterChangeConfirmed } from "../Filter/FilterClasses";
+import SlidingPillTabs from "../Shared/SlidingPillTabs";
 
 export default function MovesPanel({id}) {
     const windowWidth = React.useContext(WindowWidth)
@@ -24,6 +25,7 @@ export default function MovesPanel({id}) {
         'Form-Change': false,
         'Zygarde-Cube': false,
     })
+    const availableTabs = Object.entries(availableMoveTabs).reduce((acc, entry, index) => [...acc, ...(entry[1] ? [index] : []) ], [] as any[])
     const [moveMethodTab, setMoveMethodTab] = React.useState(1)
     const [onlyFiltered, setOnlyFiltered] = React.useState(false)
     const [availableMoves, setAvailableMoves] = React.useState(getFilteredMoves(id) ?? {})
@@ -76,23 +78,12 @@ export default function MovesPanel({id}) {
 
                 <button className="filter-button">Filters</button>
 
-                <TabContainer 
-                    availableMoveTabs={availableMoveTabs} 
-                    setMoveMethodTab={setMoveMethodTab} 
-                    moveMethodTab={moveMethodTab}                
+                <SlidingPillTabs 
+                    tabList={availableTabs} 
+                    setCurrentTab={setMoveMethodTab}
+                    currentTab={moveMethodTab}
+                    customLabel={i => Object.keys(availableMoveTabs)[i]}
                 />
-                {/* <div className="tab-container">
-                    {Object.getOwnPropertyNames(availableMoveTabs).map((tab, index) => (
-                        availableMoveTabs[tab] && 
-                        <button 
-                            onClick={() => setMoveMethodTab(index)} 
-                            key={tab}
-                            className={`tab ${index === moveMethodTab ? 'current' : ''}`}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div> */}
             </Scroller>
             
             {/* <div className="moves-top-bar">
@@ -150,42 +141,4 @@ export default function MovesPanel({id}) {
     )
 }
 
-function TabContainer ({availableMoveTabs, setMoveMethodTab, moveMethodTab}) {
-    const tabRef = React.useRef<any>(null)
-    const [rect, setRect] = React.useState<any>({width: 0, height: 0, left: 0, top: 0})
 
-    React.useEffect(() => {
-        const r = tabRef.current
-        // console.log('client tab ' , moveMethodTab)
-        setRect(old => ({
-                left: r?.offsetLeft ?? old.left,
-                right: r?.offsetRight ?? old.right,
-                width: r?.offsetWidth ?? old.width,
-                height: r?.offsetHeight ?? old.height
-            })
-        )
-    }, [tabRef.current, moveMethodTab, availableMoveTabs])
-
-    return (
-        <div className="move-tab-container">
-            <div className="bg-pill" style={{
-                width: rect.width,
-                height: '100%',
-                left: rect.left,
-                top: rect.top,
-            }}></div>
-
-            {Object.getOwnPropertyNames(availableMoveTabs).map((tab, index) => (
-                availableMoveTabs[tab] && 
-                <button 
-                    onClick={() => setMoveMethodTab(index)} 
-                    key={tab}
-                    className={`tab ${index === moveMethodTab ? 'current' : ''}`}
-                    {...(index === moveMethodTab ? {ref: tabRef} : {})}
-                >
-                    {tab}
-                </button>
-            ))}
-        </div>
-    )
-}

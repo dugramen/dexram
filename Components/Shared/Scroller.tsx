@@ -25,20 +25,26 @@ export default function Scroller(props: {className?, innerClassName?, children?}
         handleScrollCheck()
     }, [scroller.current, scroller.current?.clientWidth, scroller.current?.scrollWidth, scroller.current?.scrollLeft])
 
-    return <div className={"indicated-scroller-container " + (props.className ?? '')}>
+    return <div className={"Scroller indicated-scroller-container " + (props.className ?? '')}>
         <div 
             ref={scroller}
             onScroll={handleScrollCheck}
             // onResize={handleScrollCheck}
-            className={"indicated-scroller " + props.innerClassName ?? ''}
+            className={"flex-container indicated-scroller " + (props.innerClassName ?? '')}
         >
             {props.children}
         </div>
-        <div className={"arrow left " + (![-2, -1].includes(scrollAtEnds) ? 'shown': 'hidden')}>
+        <div 
+            className={"arrow left " + (![-2, -1].includes(scrollAtEnds) ? 'shown': 'hidden')}
+            onClick={() => {scroller.current.scrollLeft = 0}}
+        >
             <FontAwesomeIcon icon={faAngleDoubleLeft}/>
             {/* <div>{'<'}</div> */}
         </div>
-        <div className={"arrow right " + (![-2, 1].includes(scrollAtEnds) ? 'shown': 'hidden')}>
+        <div 
+            className={"arrow right " + (![-2, 1].includes(scrollAtEnds) ? 'shown': 'hidden')}
+            onClick={() => {scroller.current.scrollLeft = scroller.current.scrollWidth}}
+        >
             <FontAwesomeIcon icon={faAngleDoubleRight}/>
         </div>
     </div>

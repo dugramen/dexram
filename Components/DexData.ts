@@ -57,16 +57,19 @@ export interface OtherData {
     move_effect_prose?: OList<MoveEffectProse>,
     prose_effect_list?: Set<string>,
     pokedex_entries?: OList<{ species_id, version_id, language_id, flavor_text }[]>,
-    encounters?: OList<{ 
-        id, version_id, location_area_id,
-        encounter_slot_id, pokemon_id,
-        min_level, max_level 
-    }[]>,
+    encounters?: OList<Encounter[]>,
     locations?: OList<{ id, region_id, identifier }>,
     location_areas?: OList<{ id, location_id, game_index, identifier }>,
     encounter_methods?: OList<{ id, identifier, order }>,
     encounter_slots?: OList<{ id, version_group_id, encounter_method_id, slot, rarity }>,
-    versions?: OList<{ id, version_group_id, identifier, color }>
+    versions?: OList<{ id, version_group_id, identifier, color }>,
+    regions?: OList<{id,identifier}>,
+}
+
+export interface Encounter { 
+    id, version_id, location_area_id,
+    encounter_slot_id, pokemon_id,
+    min_level, max_level 
 }
 
 export interface Forms {
@@ -196,7 +199,7 @@ export function loadInData (update) {
     ['moves', 'abilities', 'types', 'stats', 'egg_groups',
       'items', 'evolution_triggers', 'encounters', 'locations', 
       'location_areas', 'encounter_methods', 'encounter_slots',
-      'versions',
+      'versions', 'regions'
     ].forEach(label => loadOtherData(label).then(update));
     
     loadOtherData('pokedex_entries').then(update);

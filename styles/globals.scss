@@ -380,6 +380,42 @@ select { min-width: 0;}
   }
 }
 
+.SlidingPillTabs {
+  display: flex;
+  background-color: hsl(0, 0%, 15%);
+  border-radius: 100px;
+  position: relative;
+  isolation: isolate;
+
+  .bg-pill {
+    background-color: var(--text-color-light);
+    // background-color: white;
+    // z-index: 2;
+    border-radius: 99px;
+    position: absolute;
+    transition: left .3s, right .3s, width .3s, height .3s;
+  }
+
+  .tab {
+    background-color: transparent;
+    color: var(--text-color-light);
+    // border-radius: 100px;
+    border: none;
+    outline: none;
+    padding: 8px 16px;
+    flex: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: .3s;
+    z-index: 1;
+
+    &.current {
+      color: black;
+      // box-shadow: 0px 0px 10px 5px black;
+    }
+  }
+}
+
 .filter-range-component {
   margin: 4px 0px;
   display: flex;
@@ -664,6 +700,7 @@ $card-spacing: 32px;
   .arrow {
     position: absolute;
     background: var(--bg-color-dim);
+    cursor: pointer;
     // filter: brightness(.85);
     height: 100%;
     aspect-ratio: 1/1;
@@ -813,22 +850,53 @@ $card-spacing: 32px;
   }
 
   .LocationPanel {
-    display: grid;
-    grid-template-columns: auto auto auto;
-    gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .Scroller {
+      .flex-container {
+        gap: 8px;
+      }
+      select {
+        min-width: auto;
+      }
+    }
+
+    .SlidingPillTabs {
+      margin-left: auto;
+      align-self: flex-end;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: [begin location] auto [level] auto [rarity] auto [final];
+      gap: 12px;
+    }
 
     .Header {
       font-weight: bold;
     }
 
-    .version,.level,.rarity,
-    .Version,.Level,.Rarity {
+    .version-header {
+      grid-column: begin;
+      grid-row: span auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      filter: contrast(70%);
+    }
+
+    .level,.rarity,
+    .Level,.Rarity {
       justify-self: center;
     }
     .level {
-      grid-column: 2;
-      // align-self: flex-end;
-      // font-size: .9em;
+      grid-column: level;
+    }
+
+    .rarity {
+      grid-column: rarity;
     }
 
     $tab-gap: .75em; 
@@ -836,14 +904,15 @@ $card-spacing: 32px;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      grid-column: location;
     }
-
+    
     .sub {
       display: flex;
       opacity: .8;
       font-size: .8em;
 
-      grid-column: 1;
+      grid-column: location;
       
       .method {
         margin-left: $tab-gap;
@@ -960,6 +1029,10 @@ $card-spacing: 32px;
     flex-direction: column;
     align-items: center;
 
+    .SlidingPillTabs {
+    margin-left: auto;
+    }
+
     .moves-top-bar {
       margin-bottom: 20px;
       
@@ -973,43 +1046,6 @@ $card-spacing: 32px;
 
       .filter-button {
         margin-right: auto;
-      }
-    }
-
-    .move-tab-container {
-      display: flex;
-      background-color: hsl(0, 0%, 15%);
-      border-radius: 100px;
-      margin-left: auto;
-      position: relative;
-      isolation: isolate;
-
-      .bg-pill {
-        background-color: var(--text-color-light);
-        // background-color: white;
-        // z-index: 2;
-        border-radius: 99px;
-        position: absolute;
-        transition: .3s;
-      }
-
-      .tab {
-        background-color: transparent;
-        color: var(--text-color-light);
-        // border-radius: 100px;
-        border: none;
-        outline: none;
-        padding: 8px 16px;
-        flex: 1;
-        white-space: nowrap;
-        cursor: pointer;
-        transition: .3s;
-        z-index: 1;
-
-        &.current {
-          color: black;
-          // box-shadow: 0px 0px 10px 5px black;
-        }
       }
     }
 

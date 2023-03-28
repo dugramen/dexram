@@ -9,11 +9,11 @@ export default function DescriptionPanel(props) {
             {otherData.pokedex_entries?.[props.id]
             ?.filter(row => {
                 const hash = (row.flavor_text.replaceAll('\r\n', ' '))
-                const isFirstInst = usedDescriptions.has(hash)
+                const isFirstInst =!usedDescriptions.has(hash)
                 usedDescriptions.set(hash, [...(usedDescriptions.get(hash) ?? []), row.version_id])
                 // console.log(usedDescriptions)
                 // if (usedDescriptions.has(hash)) { return false }
-                return !isFirstInst
+                return isFirstInst
             })
             ?.map(row => {
                 const hash = (row.flavor_text.replaceAll('\r\n', ' '))

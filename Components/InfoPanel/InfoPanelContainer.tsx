@@ -35,8 +35,8 @@ export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
             </div>
         ),
         Moves: () => <MovesPanel id={id}/>,
-        Descriptions: () => <DescriptionPanel id={id}/>,
         Locations: () => <LocationPanel id={id}/>,
+        Descriptions: () => <DescriptionPanel id={id}/>,
         // Sprites: () => {},
         Sounds: () => <SoundPanel id={id}/>,
     }

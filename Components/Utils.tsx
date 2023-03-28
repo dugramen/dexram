@@ -17,7 +17,7 @@ export const capitalize = (string: string) => {
     return (string?.charAt(0).toUpperCase() + string?.slice(1)) ?? '';
 } 
 export const deepCapitalize = (text: string) => {
-    return text.split?.(/[\s,\-\_]+/).reduce((acc, val) => acc + (acc !== '' ? ' ' : '') + capitalize(val), '') ?? `${text}`
+    return text?.split?.(/[\s,\-\_]+/).reduce((acc, val) => acc + (acc !== '' ? ' ' : '') + capitalize(val), '') ?? `${text}`
 }
 
 export function snakeCaser(...strings: (any)[]) {
