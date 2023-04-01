@@ -1,4 +1,5 @@
 import React from "react";
+import AudioPlayer from "../AudioPlayer/AudioPlayer";
 import { pkData } from "../DexData";
 
 export default function SoundPanel(props: {id}) {
@@ -15,6 +16,12 @@ export default function SoundPanel(props: {id}) {
 
     return (
         <div className="SoundPanel">
+            <AudioPlayer
+                url={`https://play.pokemonshowdown.com/audio/cries/${pkData[props.id]?.pokemon?.identifier}.mp3`}
+                // url="https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3"
+                pitch={15}
+            />
+
             <audio
                 controls
                 src={`https://play.pokemonshowdown.com/audio/cries/${pkData[props.id]?.pokemon?.identifier}.mp3`}

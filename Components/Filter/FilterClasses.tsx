@@ -1,9 +1,9 @@
-import { otherData, pkData, PkPokemon, Species, Evolution, Move } from "../DexData"
+import { otherData, pkData, PkPokemon, Species, Evolution, Move, Encounter } from "../DexData"
 import { Type } from "../Shared/Type";
 import DualRangeSlider from "../DualRangeSlider";
 import { capitalize } from "../Utils";
 import ReactSelect from 'react-select';
-import { WindowWidth } from "../../pages/_app";
+// import { WindowWidth } from "../../pages/_app";
 import React from "react";
 
 
@@ -63,6 +63,7 @@ export function beginNewFilter() {
     qulaifiedMoves = undefined
 }
 
+// Allow any string but still suggest with Autocomplete
 type StringAuto<T> = T | (string & Record<never, never>)
 
 const move = (T, key: StringAuto<keyof Move>, def?, customPredicate?: (id, v) => any) => {
@@ -87,6 +88,9 @@ const spec = (T, key: StringAuto<keyof Species>, def: any = undefined) => T(key,
 )
 const poke = (T, key: StringAuto<keyof PkPokemon>, def: any = undefined) => T(key, def, 
     (id, s, v) => v(pkData[id]?.pokemon?.[key])
+)
+const encounter = (T, key: StringAuto<keyof Encounter>, def?: any ) => T(key, def, 
+    (p, s, v) => otherData.encounters?.[p]?.some(row => v(row[key]))    
 )
 
 const section = (prefix, ...args) => {

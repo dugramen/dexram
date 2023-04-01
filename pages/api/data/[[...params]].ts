@@ -11,7 +11,7 @@ import path from 'path'
 
 interface Handler {
   handler: (row, output) => any,
-  selector: (output, queryParams?) => {}
+  selector?: (output, queryParams?) => {}
 }
 
 const dataGrouper = (selectors: number[], row: any, output, entriesAreArrays = false, fullRow: any = undefined) => {
@@ -175,5 +175,8 @@ export default async function dataHandler(
   
   const end = Date.now();
   console.log(`Execution time: ${end - start} ms`);
-  res.status(200).json({...selected_handler.selector(output, req.query.params), headers: output.headers})
+  res.status(200).json({
+    ...(selected_handler.selector?.(output, req.query.params) ?? default_handler.selector?.(output, req.query.params)), 
+    headers: output.headers
+  })
 }

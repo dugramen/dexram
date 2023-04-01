@@ -584,6 +584,10 @@ select { min-width: 0;}
 
   &.desktop {
     flex: .75;
+  } 
+
+  .panel-scroller > .arrow {
+    margin: 10px;
   }
 
   .exit-button {
@@ -678,31 +682,42 @@ $card-spacing: 32px;
 
 .indicated-scroller-container {
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  width: 100%;
+  // width: 100%;
+  // height: 100%;
 
-  @keyframes sin-h-sway {
-    from {
-      transform: translateX(-3px);
-    }
-    to {
-      transform: translateX(+3px);
+  &.vertical {
+    height: 100%;
+    .indicated-scroller {
+      overflow-x: hidden;
+      overflow-y: auto;
     }
   }
-
+  &.horizontal {
+    width: 100%;
+    .indicated-scroller {
+      overflow-y: hidden;
+      overflow-x: auto;
+    }
+  }
+  
   .indicated-scroller {
     display: flex;
-    overflow-x: auto;
+    // overflow: auto;
     width: 100%;
+    height: 100%;
     @include no-scrollbar();
   }
   .arrow {
+    color: var(--text-color);
     position: absolute;
     background: var(--bg-color-dim);
     cursor: pointer;
-    // filter: brightness(.85);
-    height: 100%;
+    filter: brightness(.85);
+    height: min(100%, 40px);
+    // width: min(100%, 100px);
     aspect-ratio: 1/1;
     justify-content: center;
     border-radius: 8px;
@@ -713,22 +728,33 @@ $card-spacing: 32px;
     margin: 0 -20px;
     font-size: .8em;
     transition: .3s;
-    // opacity: 0;
-    // &.shown {
-    //   opacity: 1;
-    // }
     &.hidden {
       opacity: 0;
-      margin: 0 -40px;
     }
   }
   .left {
     left: 0;
-    // background: linear-gradient(to left, hsla(0, 0%, 100%, 0), var(--bg-color) 40%);
+    &.hidden {
+      transform: translateX(-40px);
+    }
   }
   .right {
     right: 0;
-    // background: linear-gradient(to right, hsla(0, 0%, 100%, 0), var(--bg-color) 40%);
+    &.hidden {
+      transform: translateX(40px);
+    }
+  }
+  .top {
+    top: 0;
+    &.hidden {
+      transform: translateY(-40px);
+    }
+  }
+  .bottom {
+    bottom: 0;
+    &.hidden {
+      transform: translateY(40px);
+    }
   }
 }
 
@@ -1057,6 +1083,9 @@ $card-spacing: 32px;
       // padding: 12px 20px;
       align-items: flex-start;
       text-align: center;
+      overflow: auto;
+      max-width: calc(100% + 64px);
+      padding: 0px 32px;
       
       &.desktop {
         grid-template-columns: repeat(7, auto);

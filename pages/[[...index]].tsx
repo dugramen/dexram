@@ -13,7 +13,7 @@ import { WindowWidth } from "./_app";
 import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faArrowDownShortWide, faArrowDownWideShort } from "@fortawesome/free-solid-svg-icons";
-
+import Scroller from "../Components/Shared/Scroller";
 
 
 const statSort = (a, b, statId = 0) => (

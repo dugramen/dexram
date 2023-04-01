@@ -42,7 +42,8 @@ export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
     }
 
     return (
-        <div className="InfoPanel">
+        // <div className="InfoPanel">
+        <Scroller className=' panel-scroller' innerClassName='InfoPanel' vertical={true}>
             <h1>{`#${id} ${capitalize(pkData[id]?.pokemon?.identifier)}`}</h1>
             <Sprite
                 id={id}
@@ -64,60 +65,10 @@ export default function PokemonInfoPanel({id, setSelectedPoke}: Props) {
                 </div>
             </Scroller>
 
-            {/* <div className="Tab-container">
-            </div> */}
-
             <div className="Content-container">
                 {tabMap[currentTab]?.() ?? []}
-                {/* {
-                    currentTab === 0 &&
-                    <AboutPanel id={id}/>
-                }
-
-                {
-                    currentTab === 1 &&
-                    <Stats id={id}/>
-                }
-
-                {
-                    currentTab === 2 &&
-                    <div className="EvolutionPanel">
-                        <EvolutionTree 
-                            id={id} 
-                            setSelectedPoke={setSelectedPoke} 
-                            curId={undefined}                            
-                        />
-                    </div>
-                }
-
-                {
-                    currentTab === 3 &&
-                    <MovesPanel 
-                        id={id} 
-                    />
-                } */}
-                {/* {[
-                    // Info
-                    <AboutPanel id={id}/>,
-
-                    // Stats
-                    <Stats id={id}/>,
-
-                    // Evolution
-                    <div className="EvolutionPanel">
-                        <EvolutionTree 
-                            id={id} 
-                            setSelectedPoke={setSelectedPoke} 
-                            curId={undefined}                            
-                        />
-                    </div>,
-
-                    // Moves
-                    <MovesPanel 
-                        id={id} 
-                    />,
-                ][currentTab]} */}
             </div>
-        </div>
+        </Scroller>
+        // </div>
     )
 }

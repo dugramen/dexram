@@ -54,52 +54,6 @@ export default function LocationPanel(props: {id}) {
                 row => locations?.[location_areas?.[row.location_area_id]?.location_id]?.region_id,
             )  
         )
-
-        // setRegionMap(
-        //     generateGrouping(
-        //         props.id, 
-        //         row => locations?.[location_areas?.[row.location_area_id]?.location_id]?.region_id,
-        //     )
-        // )
-        // setVersionMap(
-        //     generateGrouping(
-        //         props.id,
-        //         row => row.version_id,
-        //         row => ({ version_id: row.version_id })
-        //     )
-        // )
-
-        // const groupedEncounters: {[a: string]: EncounterPlus} = otherData.encounters?.[props.id]?.reduce((acc, row) => {
-        //     const slice = {
-        //         location_area_id: row.location_area_id,
-        //         method: otherData.encounter_slots?.[row.encounter_slot_id]?.encounter_method_id,
-        //     }
-        //     const hash = simpleHash(JSON.stringify(slice))
-        //     const oldRow = acc[hash] ?? row
-        //     return {
-        //         ...acc,
-        //         [hash]: {
-        //             ...oldRow, 
-        //             min_level: Math.min(oldRow.min_level, row.min_level),
-        //             max_level: Math.max(oldRow.max_level, row.max_level),
-        //             rarity: Math.max(oldRow.rarity ?? 0, otherData.encounter_slots?.[oldRow.encounter_slot_id]?.rarity)
-        //         }
-        //     }
-        // }, {}) ?? {}
-
-        // setVersionMap(Object.values(groupedEncounters).reduce((acc, row) => {
-        //     return {
-        //         ...acc,
-        //         [row.version_id]: [...(acc[row.version_id] ?? []), row]
-        //     }
-        // }, {}))
-        // setRegionMap(Object.values(groupedEncounters).reduce((acc, row) => {
-        //     const region_id = locations?.[location_areas?.[row.location_area_id]?.location_id]?.region_id
-        //     return {
-        //         ...acc,
-        //         [region_id]: [...(acc[region_id] ?? []), row]
-        //     }
-        // }, {}))
     }, [props.id, useVersion])
 
     return (
@@ -137,11 +91,6 @@ export default function LocationPanel(props: {id}) {
                         if (![tab, 0].includes(parseInt(region))) { return [] }
                         const usedLocationAreaIds = new Set()
                         return <React.Fragment key={region}>
-                            {/* <div className="version-header" >
-                                {deepCapitalize(useVersion 
-                                    ? otherData.versions?.[region]?.identifier 
-                                    : otherData.regions?.[region]?.identifier)}
-                            </div> */}
                             { 
                                 rows
                                 .sort((a, b) => a.location_area_id - b.location_area_id)
