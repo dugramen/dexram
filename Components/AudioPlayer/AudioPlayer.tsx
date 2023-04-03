@@ -21,12 +21,30 @@ function reverseBuffer(audioBuffer) {
     return audioBuffer;
 }
 
-function changePitch(audioBuffer, context: AudioContext, cents) {
+function changePitch(audioBuffer: AudioBufferSourceNode, context: AudioContext, cents) {
     // Calculate the detuning value in cents
     const detune = cents * 100;
   
     // Set the detune value of the AudioBufferSourceNode
     audioBuffer.detune.setValueAtTime(detune, context.currentTime);
+}
+
+function convolve(source: AudioBufferSourceNode, audioContext: AudioContext, wave: string) {
+    // Create a ConvolverNode and load an impulse response into it
+    if (!wave) {return}
+    const convolverNode = audioContext.createConvolver();
+    const impulseUrl = `/impulse_waves/${wave}`;
+    fetch(impulseUrl)
+    .then(response => response.arrayBuffer())
+    .then(buffer => audioContext.decodeAudioData(buffer))
+    .then(decodedBuffer => {
+        convolverNode.buffer = decodedBuffer;
+    })
+    .catch(console.log);
+
+    // Connect the sourceNode to the ConvolverNode and the AudioContext's destination
+    source.connect(convolverNode);
+    convolverNode.connect(audioContext.destination);
 }
 
 const cloneBuffer = (original: AudioBuffer, context: AudioContext) => {
@@ -39,19 +57,29 @@ const cloneBuffer = (original: AudioBuffer, context: AudioContext) => {
     return clone
 }
 
-export default function(p: {url: string, pitch?, reverse?: boolean}) {
+export default function AudioPlayer (p: {url: string, options: {pitch, reverse, impulseWave}}) {
     const [context, setContext] = React.useState(new AudioContext())
     const [audioBuffer, setAudioBuffer] = React.useState<AudioBuffer>()
 
+    const {options} = p
+    const sourceRef = React.useRef<AudioBufferSourceNode>()
+    
 
     function play() {
         if (!audioBuffer) { return }
+        try {
+            sourceRef.current?.stop()
+        } catch {
+            console.log('no other audio is currently playing')
+        }
 
         const source = context.createBufferSource()
+        sourceRef.current = source
         source.buffer = cloneBuffer(audioBuffer, context)
 
-        p.pitch !== undefined && changePitch(source, context, p.pitch);
-        p.reverse && reverseBuffer(source.buffer);
+        options.pitch !== undefined && changePitch(source, context, options.pitch);
+        options.reverse && reverseBuffer(source.buffer);
+        options.impulseWave && convolve(source, context, options.impulseWave)
 
         source.connect(context.destination)
         source.start()
@@ -69,7 +97,6 @@ export default function(p: {url: string, pitch?, reverse?: boolean}) {
             console.log(error)
             setAudioBuffer(undefined)
         })
-        // .then(console.log)
     }, [p.url])
 
     return (

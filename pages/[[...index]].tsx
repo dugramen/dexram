@@ -13,7 +13,7 @@ import { WindowWidth } from "./_app";
 import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faArrowDownShortWide, faArrowDownWideShort } from "@fortawesome/free-solid-svg-icons";
-import Scroller from "../Components/Shared/Scroller";
+// import Scroller from "../Components/Shared/Scroller";
 
 
 const statSort = (a, b, statId = 0) => (
@@ -128,8 +128,6 @@ export default function Home(props) {
   }, [search, pokeDataLoaded, sortOption, sortAscending, router.query.filters])
 
 
-  
-
 
   const Row = React.useCallback(({index, style}: any) => (
     <PokedexListItem
@@ -201,17 +199,6 @@ export default function Home(props) {
             isMobile &&
             <div 
               className="exit-button" 
-              // style={{
-              //   position: 'absolute',
-              //   top: 0,
-              //   left: 0,
-              //   background: 'none',
-              //   outline: 'none',
-              //   border: 'none',
-              //   color: 'gray',
-              //   padding: '30px',
-              //   fontSize: '1.25rem'
-              // }} 
               onClick={() => setSelectedPoke(-1)}
             > <FontAwesomeIcon icon={faArrowLeft}/> </div>
           }
