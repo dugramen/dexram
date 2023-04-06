@@ -6,6 +6,7 @@ import { Type } from "../Shared/Type";
 import { WindowWidth } from "../../pages/_app";
 import { getFilteredMoves, beginNewFilter, filterChangeConfirmed } from "../Filter/FilterClasses";
 import SlidingPillTabs from "../Shared/SlidingPillTabs";
+import FilterPanelNew from "../Filter/FilterPanelnEW";
 
 export default function MovesPanel({id}) {
     const windowWidth = React.useContext(WindowWidth)
@@ -76,7 +77,9 @@ export default function MovesPanel({id}) {
                     onChange={() => setOnlyFiltered(old => !old)}
                 />
 
-                <button className="filter-button">Filters</button>
+                <FilterPanelNew/>
+
+                {/* <button className="filter-button">Filters</button> */}
 
                 <SlidingPillTabs 
                     tabList={availableTabs} 
