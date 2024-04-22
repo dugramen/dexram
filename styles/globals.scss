@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&display=swap');
 
 :root {
+  color-scheme: light only;
   --max-width: 1100px;
   --border-radius: 12px;
   --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
@@ -50,7 +51,7 @@
   --text-color-extra-light: hsl(0, 0%, 85%);
 }
 
-@media (prefers-color-scheme: dark) {
+// @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;
@@ -81,7 +82,7 @@
     --card-rgb: 100, 100, 100;
     --card-border-rgb: 200, 200, 200;
   }
-}
+// }
 
 * {
   box-sizing: border-box;
@@ -557,7 +558,7 @@ select { min-width: 0;}
     width: min-content;
     text-align: center;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     // display: flex;
     // flex-direction: row;
     // flex-wrap: wrap;

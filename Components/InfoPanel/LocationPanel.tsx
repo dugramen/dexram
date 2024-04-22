@@ -61,7 +61,7 @@ export default function LocationPanel(props: {id}) {
             <Scroller>
                 <select onChange={event => setUseVersion(parseInt(event.target.value))}>
                     <option value={0}>Region</option>
-                    <option value={1}>Version</option>
+                    <option value={1}>Game</option>
                 </select>
                 <SlidingPillTabs 
                     tabList={Object.getOwnPropertyNames(mapping).map(i => parseInt(i))} 

@@ -99,6 +99,7 @@ export default function MovesPanel({id}) {
                                    - (b.pokemon_move_method_id === 1 ? b.level: 100 + b.pokemon_move_method_id))
                     .map((row, index) => {
                         let result = ([row.pokemon_move_method_id, 0].includes(moveMethodTab)) &&
+                        otherData.moves?.[row.move_id] &&
                         (!onlyFiltered || Object.hasOwn(availableMoves, row.move_id)) &&  
                         <React.Fragment key={`${id} ${Object.entries(row).toString()}`}>
                             <div className="level">{
@@ -123,7 +124,7 @@ export default function MovesPanel({id}) {
                             </div>
 
                             <div className="type">
-                                <Type type={otherData.moves?.[row.move_id].type_id}/>
+                                <Type type={otherData.moves?.[row.move_id]?.type_id}/>
                             </div>
 
                             <div>{blankEntryDasher(otherData.moves?.[row.move_id].power)}</div>
