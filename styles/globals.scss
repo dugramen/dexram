@@ -98,7 +98,8 @@ html,
 body {
   max-width: 100vw;
   font-family: 'Montserrat', sans-serif;
-  overflow-x: hidden;
+  height: 100%;
+  // overflow-x: hidden;
   // font-family: 'Inter', sans-serif;;
 }
 
@@ -112,6 +113,18 @@ body {
     rgb(var(--background-start-rgb));
   
 }
+
+
+// @property --gradient-col-1 {
+//   syntax: '<color>';
+//   initial-value: black;
+//   inherits: false;
+// }
+// @property --gradient-col-2 {
+//   syntax: '<color>';
+//   initial-value: black;
+//   inherits: false;
+// }
 
 a {
   color: inherit;
@@ -146,11 +159,11 @@ a {
   transition: .3s;
   opacity: 0;
   
-  &:hover {
-    opacity: 1;
-    // background-color: hsl(0, 0%, 15%);
-    background-color: var(--bg-color-dim);
-  }
+  // &:hover {
+  //   opacity: 1;
+  //   // background-color: hsl(0, 0%, 15%);
+  //   background-color: var(--bg-color-dim);
+  // }
 }
 ::-webkit-scrollbar-thumb {
   // background-color: hsla(0, 0%, 100%, .15);
