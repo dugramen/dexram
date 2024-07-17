@@ -3,7 +3,7 @@ import { filterData, updateFilterData, FilterData, filterChanged, filterChangeCo
 // import { CollageGrid, Modal } from '../Utils';
 import CollageGrid from '../Shared/CollageGrid';
 import Modal from '../Shared/Modal';
-import { WindowWidth } from '../../pages/_app';
+import { WindowWidth } from '../../pages__old/_app';
 import { useRouter } from 'next/router';
 
 

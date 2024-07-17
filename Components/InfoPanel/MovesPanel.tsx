@@ -3,7 +3,7 @@ import { PkMove, pkData, otherData } from "../DexData";
 import { capitalize, parseProse, blankEntryDasher } from "../Utils";
 import Scroller from "../Shared/Scroller";
 import { Type } from "../Shared/Type";
-import { WindowWidth } from "../../pages/_app";
+import { WindowWidth } from "../../pages__old/_app";
 import { getFilteredMoves, beginNewFilter, filterChangeConfirmed } from "../Filter/FilterClasses";
 import SlidingPillTabs from "../Shared/SlidingPillTabs";
 import FilterPanelNew from "../Filter/FilterPanelnEW";

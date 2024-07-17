@@ -3,7 +3,7 @@ import { pkData, otherData } from "./DexData";
 import { Type } from "./Shared/Type";
 import { capitalize } from "./Utils";
 import Sprite from "./Shared/Sprite";
-import { WindowWidth } from "../pages/_app";
+import { WindowWidth } from "../pages__old/_app";
 
 export const RenderedPokeList = {};
 
